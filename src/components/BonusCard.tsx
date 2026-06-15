@@ -49,7 +49,7 @@ export function BonusCard({
       {rank === 1 && (
         <div style={{
           position: 'absolute', top: 0, left: '20px',
-          background: 'var(--green-dark)', color: '#fff',
+          background: 'var(--gold)', color: '#111827',
           fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.5px',
           padding: '3px 12px', borderRadius: '0 0 8px 8px',
           zIndex: 1,

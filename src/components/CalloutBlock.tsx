@@ -6,7 +6,7 @@ interface CalloutBlockProps {
 
 const styles: Record<string, { bg: string; border: string; icon: string; color: string }> = {
   info:    { bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.25)', icon: 'ℹ️', color: '#60a5fa' },
-  tip:     { bg: 'rgba(34,197,94,0.1)',  border: 'rgba(34,197,94,0.25)',  icon: '💡', color: '#4ade80' },
+  tip:     { bg: 'rgba(255,205,0,0.12)',  border: 'rgba(255,205,0,0.35)',  icon: '💡', color: '#A77E00' },
   warning: { bg: 'rgba(234,179,8,0.1)',  border: 'rgba(234,179,8,0.25)',  icon: '⚠️', color: '#fbbf24' },
 }
 
