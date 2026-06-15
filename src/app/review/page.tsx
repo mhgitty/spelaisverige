@@ -15,7 +15,7 @@ import type { Metadata } from 'next'
 
 export const revalidate = 3600
 
-const BASE = 'https://spelasisverige.com'
+const BASE = 'https://spelaisverige.com'
 const CANONICAL = `${BASE}/online-casino/review/`
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -20,7 +20,7 @@ import type { Metadata } from 'next'
 
 export const revalidate = 3600
 
-const BASE = 'https://spelasisverige.com'
+const BASE = 'https://spelaisverige.com'
 const SLUG = ['online-casino', 'payment']
 const CANONICAL = `${BASE}/online-casino/payment/`
 

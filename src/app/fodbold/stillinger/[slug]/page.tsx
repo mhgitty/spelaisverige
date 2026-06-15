@@ -13,7 +13,7 @@ import type { Metadata } from 'next'
 
 export const revalidate = 3600
 
-const BASE = 'https://spelasisverige.com'
+const BASE = 'https://spelaisverige.com'
 const SM_BASE = 'https://api.sportmonks.com/v3/football'
 
 interface Props { params: Promise<{ slug: string }> }

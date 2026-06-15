@@ -10,7 +10,7 @@ const figtree = Figtree({
   display: 'swap',
 })
 
-const BASE = 'https://spelasisverige.com'
+const BASE = 'https://spelaisverige.com'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE),

@@ -3,7 +3,7 @@ import { EarthGlobeIcon } from '@sanity/icons'
 import type { DocumentActionComponent, DocumentActionProps } from 'sanity'
 import { useClient } from 'sanity'
 
-const BASE = 'https://spelasisverige.com'
+const BASE = 'https://spelaisverige.com'
 
 export const previewAction: DocumentActionComponent = (
   props: DocumentActionProps

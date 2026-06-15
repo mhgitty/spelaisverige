@@ -10,7 +10,7 @@ import type { Metadata } from 'next'
 
 export const revalidate = 3600
 
-const BASE = 'https://spelasisverige.com'
+const BASE = 'https://spelaisverige.com'
 
 interface Props { params: Promise<{ slug: string }> }
 

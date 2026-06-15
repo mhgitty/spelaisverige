@@ -3,7 +3,7 @@ import { client } from '@/lib/sanity'
 
 export const revalidate = 86400
 
-const BASE = 'https://spelasisverige.com'
+const BASE = 'https://spelaisverige.com'
 
 // Only include lastModified when we have a real timestamp — never fake it with new Date()
 function lastMod(date?: string): { lastModified: Date } | Record<string, never> {

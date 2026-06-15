@@ -14,7 +14,7 @@ export async function GET(
   )
 
   if (!redirect || !redirect.active) {
-    return NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_SITE_URL ?? 'https://spelasisverige.com'), 302)
+    return NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_SITE_URL ?? 'https://spelaisverige.com'), 302)
   }
 
   return NextResponse.redirect(redirect.destination, 302)
