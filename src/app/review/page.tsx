@@ -7,6 +7,7 @@ import { TableOfContents } from '@/components/TableOfContents'
 import { MobileToc } from '@/components/MobileToc'
 import { JsonLd } from '@/components/JsonLd'
 import { HreflangLinks } from '@/components/HreflangLinks'
+import { RelatedPages } from '@/components/RelatedPages'
 import { getPageBySlug, getBookmakers, getSiteSettings } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
 import Link from 'next/link'
@@ -204,6 +205,7 @@ export default async function ReviewPage() {
       )}
 
       <Footer />
+      <RelatedPages docId={page?._id} />
     </>
   )
 }

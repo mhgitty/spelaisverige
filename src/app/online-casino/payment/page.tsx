@@ -13,6 +13,7 @@ import { MobileToc } from '@/components/MobileToc'
 import { JsonLd } from '@/components/JsonLd'
 import { HreflangLinks } from '@/components/HreflangLinks'
 import { PaymentMethodsGrid } from '@/components/PaymentMethodsGrid'
+import { RelatedPages } from '@/components/RelatedPages'
 import { getPageByPath, getPaymentMethods, getSiteSettings } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
 import { notFound } from 'next/navigation'
@@ -123,6 +124,7 @@ export default async function PaymentMethodsIndexPage() {
       )}
 
       <Footer />
+      <RelatedPages docId={page?._id} />
     </>
   )
 }

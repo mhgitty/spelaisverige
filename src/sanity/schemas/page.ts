@@ -52,6 +52,52 @@ export const introField = defineField({
   }],
 })
 
+// ── Related pages (bottom of page) ────────────────────────────────────────────
+// Shared by every content type that renders a "Related pages" block.
+export const relatedPagesFields = [
+  defineField({
+    name: 'relatedTitle',
+    title: 'Related pages heading (optional)',
+    type: 'string',
+    description: 'Overrides the site-wide default heading for this page only',
+  }),
+  defineField({
+    name: 'relatedPages',
+    title: 'Related pages',
+    type: 'array',
+    description: 'Pick the pages to link to at the bottom. Nothing is shown unless you add them here.',
+    of: [{
+      type: 'object',
+      name: 'relatedPageItem',
+      fields: [
+        {
+          name: 'page',
+          title: 'Page',
+          type: 'reference',
+          to: [
+            { type: 'page' }, { type: 'casinoGuide' }, { type: 'bookmaker' },
+            { type: 'bonus' }, { type: 'paymentMethod' }, { type: 'software' },
+          ],
+          validation: (r: any) => r.required(),
+        },
+        {
+          name: 'label',
+          title: 'Link text (optional)',
+          type: 'string',
+          description: 'What the link says on the frontend. Leave empty to use the page title.',
+        },
+      ],
+      preview: {
+        select: { label: 'label', title: 'page.title', name: 'page.name' },
+        prepare({ label, title, name }: any) {
+          const target = title || name || 'Page'
+          return { title: label || target, subtitle: label ? target : undefined }
+        },
+      },
+    }],
+  }),
+]
+
 export const bodyField = defineField({
   name: 'body',
   title: 'Content',
@@ -95,7 +141,7 @@ export const bodyField = defineField({
     {
       type: 'object',
       name: 'calloutBlock',
-      title: 'Info / Tip box',
+      title: 'Info / Tip / Quote box',
       fields: [
         {
           name: 'variant', title: 'Type', type: 'string',
@@ -104,10 +150,16 @@ export const bodyField = defineField({
               { title: 'ℹ️ Info', value: 'info' },
               { title: '💡 Tip', value: 'tip' },
               { title: '⚠️ Warning', value: 'warning' },
+              { title: '❝ Quote', value: 'quote' },
             ],
             layout: 'radio', direction: 'horizontal',
           },
           initialValue: 'info',
+        },
+        {
+          name: 'author', title: 'Quoted by (optional)', type: 'reference',
+          to: [{ type: 'author' }],
+          description: 'Credits this box to an author — shows their photo, name and role underneath',
         },
         { name: 'title', title: 'Heading', type: 'string' },
         {
@@ -171,6 +223,172 @@ export const bodyField = defineField({
         select: { items: 'items' },
         prepare({ items }: any) {
           return { title: 'FAQ', subtitle: `${(items || []).length} questions` }
+        },
+      },
+    },
+    {
+      type: 'object',
+      name: 'pageLinksBlock',
+      title: 'Page Links (boxes)',
+      description: 'A grid of link boxes pointing at pages you choose',
+      fields: [
+        {
+          name: 'heading', title: 'Heading (optional)', type: 'string',
+          description: 'Shown above the boxes, e.g. "Popular guides"',
+        },
+        {
+          name: 'items', title: 'Links', type: 'array',
+          of: [{
+            type: 'object',
+            name: 'pageLinkItem',
+            fields: [
+              {
+                name: 'page', title: 'Page', type: 'reference',
+                to: [
+                  { type: 'page' }, { type: 'casinoGuide' }, { type: 'bookmaker' },
+                  { type: 'bonus' }, { type: 'paymentMethod' }, { type: 'software' },
+                  { type: 'casinoGame' }, { type: 'post' },
+                ],
+                validation: (r: any) => r.required(),
+              },
+              {
+                name: 'label', title: 'Box text (optional)', type: 'string',
+                description: 'What the box says. Leave empty to use the page title.',
+              },
+            ],
+            preview: {
+              select: { label: 'label', title: 'page.title', name: 'page.name' },
+              prepare({ label, title, name }: any) {
+                const target = title || name || 'Page'
+                return { title: label || target, subtitle: label ? target : undefined }
+              },
+            },
+          }],
+        },
+      ],
+      preview: {
+        select: { heading: 'heading', items: 'items' },
+        prepare({ heading, items }: any) {
+          const n = (items || []).length
+          return {
+            title: heading || 'Page Links',
+            subtitle: `${n} ${n === 1 ? 'box' : 'boxes'}`,
+          }
+        },
+      },
+    },
+    {
+      type: 'object',
+      name: 'cashbackCalculatorBlock',
+      title: 'Cashback Calculator',
+      fields: [
+        {
+          name: 'heading', title: 'Heading', type: 'string',
+          description: 'Shown above the calculator, e.g. "Cashback-kalkylator"',
+        },
+        {
+          name: 'currency', title: 'Currency symbol', type: 'string',
+          description: 'e.g. kr, $, €, £', initialValue: 'kr',
+        },
+        { name: 'defaultNetLoss', title: 'Default net loss', type: 'number', initialValue: 500 },
+        {
+          name: 'defaultPercent', title: 'Default cashback (%)', type: 'number',
+          description: 'e.g. 10 for 10% cashback', initialValue: 10,
+        },
+        {
+          name: 'defaultCap', title: 'Default cashback cap', type: 'number',
+          description: 'Leave empty or 0 for no cap',
+        },
+      ],
+      preview: {
+        select: { heading: 'heading', pct: 'defaultPercent', cap: 'defaultCap' },
+        prepare({ heading, pct, cap }: any) {
+          const parts = [pct ? `${pct}%` : null, cap ? `cap ${cap}` : null].filter(Boolean)
+          return {
+            title: heading || 'Cashback Calculator',
+            subtitle: parts.length ? `Default ${parts.join(' · ')}` : 'Calculator',
+          }
+        },
+      },
+    },
+    {
+      type: 'object',
+      name: 'providerBoxBlock',
+      title: 'Payment Methods / Software Box',
+      description: 'Shows a box of payment methods or software providers with logo + name',
+      fields: [
+        {
+          name: 'provider', title: 'Show', type: 'string',
+          options: {
+            list: [
+              { title: 'Payment methods', value: 'paymentMethod' },
+              { title: 'Software providers', value: 'software' },
+            ],
+            layout: 'radio',
+          },
+          initialValue: 'paymentMethod',
+          validation: (r: any) => r.required(),
+        },
+        {
+          name: 'items', title: 'Pick specific ones (optional)', type: 'array',
+          description: 'Leave empty to automatically show the first entries',
+          of: [{ type: 'reference', to: [{ type: 'paymentMethod' }, { type: 'software' }] }],
+        },
+        {
+          name: 'limit', title: 'How many to show', type: 'number',
+          description: 'Only used when nothing is hand-picked above',
+          initialValue: 6,
+          validation: (r: any) => r.min(1).max(24),
+        },
+      ],
+      preview: {
+        select: { provider: 'provider', items: 'items', limit: 'limit' },
+        prepare({ provider, items, limit }: any) {
+          const what = provider === 'software' ? 'Software providers' : 'Payment methods'
+          const count = items?.length ? `${items.length} hand-picked` : `first ${limit || 6}`
+          return { title: what, subtitle: count }
+        },
+      },
+    },
+    {
+      type: 'object',
+      name: 'wageringCalculatorBlock',
+      title: 'Wagering Calculator',
+      fields: [
+        {
+          name: 'heading', title: 'Heading', type: 'string',
+          description: 'Shown above the calculator, e.g. "Omsättningskalkylator"',
+        },
+        {
+          name: 'currency', title: 'Currency symbol', type: 'string',
+          description: 'e.g. kr, $, €, £', initialValue: 'kr',
+        },
+        {
+          name: 'defaultDeposit', title: 'Default deposit amount', type: 'number',
+          initialValue: 100,
+        },
+        {
+          name: 'defaultBonusPercent', title: 'Default bonus (%)', type: 'number',
+          description: 'e.g. 100 for a 100% match bonus', initialValue: 100,
+        },
+        {
+          name: 'defaultWagering', title: 'Default wagering requirement (x)', type: 'number',
+          description: 'e.g. 35 for 35x', initialValue: 35,
+        },
+        {
+          name: 'defaultIncludeDeposit', title: 'Wagering applies to bonus + deposit', type: 'boolean',
+          description: 'Off = wagering applies to the bonus amount only (most common). On = bonus + deposit.',
+          initialValue: false,
+        },
+        {
+          name: 'defaultContribution', title: 'Default game contribution (%)', type: 'number',
+          description: 'e.g. 100 for slots, 10 for table games', initialValue: 100,
+        },
+      ],
+      preview: {
+        select: { heading: 'heading', w: 'defaultWagering' },
+        prepare({ heading, w }: any) {
+          return { title: heading || 'Wagering Calculator', subtitle: w ? `Default ${w}x` : 'Calculator' }
         },
       },
     },
@@ -495,6 +713,7 @@ export const pageType = defineType({
     { ...introField, title: 'Intro', group: 'content' } as any,
     ...comparisonTableFields.map(f => ({ ...f, group: 'content' })) as any,
     { ...bodyField, group: 'content' } as any,
+    ...relatedPagesFields.map((f) => ({ ...f, group: 'content' })),
     defineField({
       name: 'author',
       title: 'Author',

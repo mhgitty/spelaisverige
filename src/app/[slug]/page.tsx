@@ -11,6 +11,7 @@ import { MobileToc } from '@/components/MobileToc'
 import { AuthorMeta } from '@/components/AuthorMeta'
 import { JsonLd } from '@/components/JsonLd'
 import { HreflangLinks } from '@/components/HreflangLinks'
+import { RelatedPages } from '@/components/RelatedPages'
 import { getPostBySlug, getPageByPath, getPosts, getSiteSettings, client } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
 import { notFound } from 'next/navigation'
@@ -166,6 +167,7 @@ export default async function SlugPage({ params }: Props) {
         </div>
 
         <Footer />
+        <RelatedPages docId={post?._id} />
       </>
     )
   }
@@ -255,6 +257,7 @@ export default async function SlugPage({ params }: Props) {
       )}
 
       <Footer />
+      <RelatedPages docId={page?._id} />
     </>
   )
 }

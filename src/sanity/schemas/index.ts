@@ -13,10 +13,12 @@ import { hreflangGroupType } from './hreflangGroup'
 import { paymentMethodType } from './paymentMethod'
 import { softwareType } from './software'
 import { casinoGameType } from './casinoGame'
+import { casinoGuideType } from './casinoGuide'
 
 export const schemaTypes = [
   siteSettingsType,
   homepageType,
+  casinoGuideType,
   bookmakerType,
   bonusType,
   comparisonTableTemplateType,

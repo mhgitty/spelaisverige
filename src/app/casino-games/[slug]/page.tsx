@@ -2,6 +2,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { JsonLd } from '@/components/JsonLd'
 import { HreflangLinks } from '@/components/HreflangLinks'
 import { PortableTextRenderer } from '@/components/PortableTextRenderer'
+import { RelatedPages } from '@/components/RelatedPages'
 import { getCasinoGameBySlug, client } from '@/lib/sanity'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -136,6 +137,8 @@ export default async function CasinoGamePage({ params }: Props) {
           <PortableTextRenderer value={game.body} />
         </div>
       )}
+
+      <RelatedPages docId={game?._id} />
     </>
   )
 }

@@ -5,16 +5,55 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-interface NavChild { label: string; href: string }
-interface NavItem  { label: string; href: string; isHighlighted?: boolean; children?: NavChild[] }
+interface NavNode { label: string; href: string; isHighlighted?: boolean; children?: NavNode[] }
 
-export function MobileMenu({ items }: { items: NavItem[] }) {
+// Recursive accordion node — handles any nesting depth (sub-menus of sub-menus).
+function MobileNavNode({ node, depth, onNavigate }: { node: NavNode; depth: number; onNavigate: () => void }) {
   const [open, setOpen] = useState(false)
-  const [expanded, setExpanded] = useState<string | null>(null)
+  const hasChildren = !!(node.children && node.children.length > 0)
+  const linkClass = depth === 0
+    ? `mobile-menu-link${node.isHighlighted ? ' mobile-menu-link-cta' : ''}`
+    : 'mobile-menu-sublink'
+
+  return (
+    <div className={depth === 0 ? 'mobile-menu-group' : undefined}>
+      {hasChildren ? (
+        <div className="mobile-menu-link-row">
+          <Link href={node.href} className={linkClass} onClick={onNavigate}>
+            {node.label}
+          </Link>
+          <button
+            className="mobile-menu-chevron-btn"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-label={open ? 'Stäng undermeny' : 'Öppna undermeny'}
+          >
+            <Icon name="alt-arrow-down" size={depth === 0 ? 16 : 15} className={`mobile-menu-chevron${open ? ' open' : ''}`} />
+          </button>
+        </div>
+      ) : (
+        <Link href={node.href} className={linkClass} onClick={onNavigate}>
+          {node.label}
+        </Link>
+      )}
+
+      {hasChildren && open && (
+        <div className={`mobile-menu-children${depth >= 1 ? ' mobile-menu-children-nested' : ''}`}>
+          {node.children!.map((c) => (
+            <MobileNavNode key={c.href + c.label} node={c} depth={depth + 1} onNavigate={onNavigate} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function MobileMenu({ items }: { items: NavNode[] }) {
+  const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
   // Close menu on route change
-  useEffect(() => { setOpen(false); setExpanded(null) }, [pathname])
+  useEffect(() => { setOpen(false) }, [pathname])
 
   // Lock body scroll when open
   useEffect(() => {
@@ -26,7 +65,7 @@ export function MobileMenu({ items }: { items: NavItem[] }) {
     <>
       <button
         className="mobile-menu-btn"
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         aria-label={open ? 'Stäng meny' : 'Öppna meny'}
         aria-expanded={open}
       >
@@ -35,63 +74,12 @@ export function MobileMenu({ items }: { items: NavItem[] }) {
         </span>
       </button>
 
-      {/* Backdrop */}
       {open && <div className="mobile-menu-backdrop" onClick={() => setOpen(false)} />}
 
-      {/* Drawer */}
       <nav className={`mobile-menu-drawer${open ? ' open' : ''}`} aria-hidden={!open}>
-        {items.map((item) => {
-          const hasChildren = item.children && item.children.length > 0
-          const isExpanded = expanded === item.href + item.label
-
-          return (
-            <div key={item.href + item.label} className="mobile-menu-group">
-              {hasChildren ? (
-                /* Label navigates, chevron toggles children */
-                <div className="mobile-menu-link-row">
-                  <Link
-                    href={item.href}
-                    className={`mobile-menu-link${item.isHighlighted ? ' mobile-menu-link-cta' : ''}`}
-                    onClick={() => setOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                  <button
-                    className="mobile-menu-chevron-btn"
-                    onClick={() => setExpanded(isExpanded ? null : item.href + item.label)}
-                    aria-expanded={isExpanded}
-                    aria-label={isExpanded ? 'Stäng undermeny' : 'Öppna undermeny'}
-                  >
-                    <Icon name="alt-arrow-down" size={16} className={`mobile-menu-chevron${isExpanded ? ' open' : ''}`} />
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  href={item.href}
-                  className={`mobile-menu-link${item.isHighlighted ? ' mobile-menu-link-cta' : ''}`}
-                  onClick={() => setOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              )}
-
-              {hasChildren && isExpanded && (
-                <div className="mobile-menu-children">
-                  {item.children!.map((child) => (
-                    <Link
-                      key={child.href + child.label}
-                      href={child.href}
-                      className="mobile-menu-sublink"
-                      onClick={() => setOpen(false)}
-                    >
-                      {child.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {items.map((item) => (
+          <MobileNavNode key={item.href + item.label} node={item} depth={0} onNavigate={() => setOpen(false)} />
+        ))}
       </nav>
     </>
   )

@@ -66,6 +66,9 @@ export const previewAction: DocumentActionComponent = (
     case 'casinoGame':
       url = slug ? `${BASE}/casino-games/${slug}/` : `${BASE}/casino-games/`
       break
+    case 'casinoGuide':
+      url = slug ? `${BASE}/casino-guides/${slug}/` : `${BASE}/casino-guides/`
+      break
     default:
       url = null
   }
@@ -73,11 +76,18 @@ export const previewAction: DocumentActionComponent = (
   if (!url) return null
 
   return {
-    label: 'Se på sitet',
+    label: 'Förhandsvisning',
     icon: EarthGlobeIcon,
     tone: 'default' as const,
     onHandle: () => {
-      window.open(url!, '_blank', 'noopener,noreferrer')
+      // Open the page in Draft Mode so unpublished changes are visible.
+      // Falls back to the live published page if no preview secret is set.
+      const secret = process.env.NEXT_PUBLIC_SANITY_PREVIEW_SECRET
+      const path = url!.replace(BASE, '')
+      const target = secret
+        ? `${BASE}/api/preview?secret=${encodeURIComponent(secret)}&slug=${encodeURIComponent(path)}`
+        : url!
+      window.open(target, '_blank', 'noopener,noreferrer')
     },
   }
 }

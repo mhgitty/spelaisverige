@@ -8,6 +8,7 @@ import { TableOfContents } from '@/components/TableOfContents'
 import { MobileToc } from '@/components/MobileToc'
 import { JsonLd } from '@/components/JsonLd'
 import { HreflangHead } from '@/components/HreflangHead'
+import { RelatedPages } from '@/components/RelatedPages'
 import { getPageByPath, getSiteSettings, getHreflangScript } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
 import { notFound } from 'next/navigation'
@@ -129,6 +130,7 @@ export default async function DynamicPage({ params }: Props) {
       )}
 
       <Footer />
+      <RelatedPages docId={page?._id} />
     </>
   )
 }

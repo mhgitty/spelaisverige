@@ -40,6 +40,13 @@ const linkFields = [
     description: 'Select a blog post — URL is auto-filled',
   }),
   defineField({
+    name: 'casinoGuideRef',
+    title: 'Casino guide (select from CMS)',
+    type: 'reference',
+    to: [{ type: 'casinoGuide' }],
+    description: 'Select a casino guide — URL is auto-filled',
+  }),
+  defineField({
     name: 'url',
     title: 'URL (custom / external)',
     type: 'string',
@@ -126,6 +133,14 @@ export const siteSettingsType = defineType({
 
     // ── Default author ──────────────────────────────────────────────────────────
     defineField({
+      name: 'relatedPagesTitle',
+      title: 'Related pages heading',
+      type: 'string',
+      group: 'general',
+      description: 'Site-wide heading for the related pages block at the bottom of pages. Can be overridden per page.',
+      initialValue: 'Andra sidor du kan gilla',
+    }),
+    defineField({
       name: 'defaultAuthor',
       title: 'Default author',
       type: 'reference',
@@ -182,6 +197,25 @@ export const siteSettingsType = defineType({
       rows: 2,
       group: 'footer',
       initialValue: 'Din oberoende svenska guide till onlinecasinon och casinobonusar. Vi jämför de bästa erbjudandena.',
+    }),
+    defineField({
+      name: 'socialLinks',
+      title: 'Social links',
+      type: 'object',
+      group: 'footer',
+      description: 'Add a URL for any channel — the icon shows in the footer only when a link is filled in.',
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        defineField({ name: 'facebook', title: 'Facebook', type: 'url' }),
+        defineField({ name: 'x', title: 'X (Twitter)', type: 'url' }),
+        defineField({ name: 'instagram', title: 'Instagram', type: 'url' }),
+        defineField({ name: 'youtube', title: 'YouTube', type: 'url' }),
+        defineField({ name: 'tiktok', title: 'TikTok', type: 'url' }),
+        defineField({ name: 'twitch', title: 'Twitch', type: 'url' }),
+        defineField({ name: 'linkedin', title: 'LinkedIn', type: 'url' }),
+        defineField({ name: 'discord', title: 'Discord', type: 'url' }),
+        defineField({ name: 'telegram', title: 'Telegram', type: 'url' }),
+      ],
     }),
     defineField({
       name: 'footerColumns',

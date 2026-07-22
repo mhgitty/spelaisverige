@@ -2,6 +2,10 @@ import { PortableText } from '@portabletext/react'
 import { Icon } from '@/components/Icon'
 import { replaceDateVarsInBlocks } from '@/lib/dateVars'
 import { CalloutBlock } from './CalloutBlock'
+import { WageringCalculator } from './WageringCalculator'
+import { ProviderBox } from './ProviderBox'
+import { CashbackCalculator } from './CashbackCalculator'
+import { PageLinksBlock } from './PageLinksBlock'
 import { FaqBlock } from './FaqBlock'
 import { ProsConsBlock } from './ProsConsBlock'
 import { LatestPostsBlock } from './LatestPostsBlock'
@@ -150,6 +154,10 @@ export function PortableTextRenderer({ value, posts }: { value: any[]; posts?: P
       calloutBlock: ({ value }: any) => <CalloutBlock value={value} />,
       faqBlock: ({ value }: any) => <FaqBlock value={value} />,
       prosConsBlock: ({ value }: any) => <ProsConsBlock value={value} />,
+      wageringCalculatorBlock: ({ value }: any) => <WageringCalculator value={value} />,
+      providerBoxBlock: ({ value }: any) => <ProviderBox value={value} />,
+      cashbackCalculatorBlock: ({ value }: any) => <CashbackCalculator value={value} />,
+      pageLinksBlock: ({ value }: any) => <PageLinksBlock value={value} />,
       tableBlock: ({ value }: any) => <TableBlock value={value} />,
       casinoKortBlock: ({ value }: any) => <CasinoKort value={value} />,
       bonusKortBlock: ({ value }: any) => <BonusKort value={value} />,

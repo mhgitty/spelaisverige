@@ -12,34 +12,62 @@ const DEFAULT_NAV = [
 ]
 
 function resolveUrl(item: {
-  url?: string; pageSlug?: string; pageParentSlug?: string; bookmakerSlug?: string;
-  softwareSlug?: string; paymentMethodSlug?: string; postSlug?: string;
+  url?: string; pageSlug?: string; pageParentSlug?: string; pageParent2Slug?: string; pageParent3Slug?: string; pageParent4Slug?: string;
+  bookmakerSlug?: string; softwareSlug?: string; paymentMethodSlug?: string; postSlug?: string; casinoGuideSlug?: string;
 }): string {
-  if (item.pageSlug) return item.pageParentSlug ? `/${item.pageParentSlug}/${item.pageSlug}/` : `/${item.pageSlug}/`
+  if (item.pageSlug) {
+    const segments = [item.pageParent4Slug, item.pageParent3Slug, item.pageParent2Slug, item.pageParentSlug, item.pageSlug].filter(Boolean)
+    return `/${segments.join('/')}/`
+  }
   if (item.bookmakerSlug) return `/review/${item.bookmakerSlug}/`
-  if (item.softwareSlug) return `/software/${item.softwareSlug}/`
+  if (item.softwareSlug) return `/online-casino/software/${item.softwareSlug}/`
   if (item.paymentMethodSlug) return `/online-casino/payment/${item.paymentMethodSlug}/`
   if (item.postSlug) return `/${item.postSlug}/`
+  if (item.casinoGuideSlug) return `/casino-guides/${item.casinoGuideSlug}/`
   return item.url || '/'
 }
 
-interface ResolvedNavItem { label: string; href: string; isHighlighted: boolean; icon?: string; children: { label: string; href: string }[] }
+interface ResolvedNavChild { label: string; href: string; children?: ResolvedNavChild[] }
+interface ResolvedNavItem { label: string; href: string; isHighlighted: boolean; icon?: string; children: ResolvedNavChild[] }
+
+// Recursive dropdown renderer — handles any nesting depth (sub-menus of sub-menus).
+function NavDropdownTree({ items }: { items: ResolvedNavChild[] }) {
+  return (
+    <>
+      {items.map((child) =>
+        child.children && child.children.length > 0 ? (
+          <div key={child.href + child.label} className="nav-dropdown-sub">
+            <Link href={child.href} className="nav-dropdown-item nav-dropdown-item-has-children">
+              {child.label}
+              <Icon name="alt-arrow-right" size={13} style={{ flexShrink: 0, opacity: 0.5 }} />
+            </Link>
+            <div className="nav-dropdown nav-dropdown-flyout">
+              <NavDropdownTree items={child.children} />
+            </div>
+          </div>
+        ) : (
+          <Link key={child.href + child.label} href={child.href} className="nav-dropdown-item">
+            {child.label}
+          </Link>
+        )
+      )}
+    </>
+  )
+}
 
 export async function Navbar({ navItems, logoHref = '/' }: { navItems?: ResolvedNavItem[]; logoHref?: string } = {}) {
   let nav = navItems
   if (!nav) {
     const settings = await getSiteSettings().catch(() => null)
     const raw: any[] = settings?.headerNav?.length ? settings.headerNav : DEFAULT_NAV
-    nav = raw.map((item: any) => ({
+    const mapNode = (item: any): any => ({
       label: item.label,
       href: resolveUrl(item),
       isHighlighted: item.isHighlighted ?? false,
       icon: item.icon ?? undefined,
-      children: (item.children || []).map((c: any) => ({
-        label: c.label,
-        href: resolveUrl(c),
-      })),
-    }))
+      children: (item.children || []).map(mapNode),
+    })
+    nav = raw.map(mapNode)
   }
 
   return (
@@ -83,11 +111,7 @@ export async function Navbar({ navItems, logoHref = '/' }: { navItems?: Resolved
                   <Icon name="alt-arrow-down" size={14} style={{ marginLeft: '2px', flexShrink: 0, opacity: 0.5 }} />
                 </Link>
                 <div className="nav-dropdown">
-                  {item.children.map((child: { href: string; label: string }) => (
-                    <Link key={child.href + child.label} href={child.href} className="nav-dropdown-item">
-                      {child.label}
-                    </Link>
-                  ))}
+                  <NavDropdownTree items={item.children} />
                 </div>
               </div>
             )

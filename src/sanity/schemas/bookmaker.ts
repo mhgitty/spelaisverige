@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { bodyField } from './page'
+import { bodyField, relatedPagesFields } from './page'
 
 export const bookmakerType = defineType({
   name: 'bookmaker',
@@ -129,6 +129,7 @@ export const bookmakerType = defineType({
 
     // ── Page content ──────────────────────────────────────────────────────────
     { ...bodyField, group: 'content' } as any,
+    ...relatedPagesFields.map((f) => ({ ...f, group: 'content' })),
 
     // ── Payment Methods & Software ────────────────────────────────────────────
     defineField({

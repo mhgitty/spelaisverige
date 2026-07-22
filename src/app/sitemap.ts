@@ -11,7 +11,7 @@ function lastMod(date?: string): { lastModified: Date } | Record<string, never> 
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [posts, pages, bookmakers, paymentMethods, software] = await Promise.all([
+  const [posts, pages, bookmakers, paymentMethods, software, casinoGuides] = await Promise.all([
 
     client.fetch<Array<{ slug: { current: string }; publishedAt?: string; lastUpdated?: string }>>(
       `*[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc) { slug, publishedAt, lastUpdated }`
@@ -39,6 +39,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<Array<{ slug: { current: string }; _updatedAt?: string }>>(
       `*[_type == "software" && defined(slug.current)] { slug, _updatedAt }`
     ).catch(() => []),
+
+    client.fetch<Array<{ slug: { current: string }; _updatedAt?: string }>>(
+      `*[_type == "casinoGuide" && defined(slug.current)] { slug, _updatedAt }`
+    ).catch(() => []),
   ])
 
   // ── Bookmaker review URLs ──────────────────────────────────────────────────────
@@ -65,17 +69,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...lastMod(s._updatedAt),
   }))
 
+  // ── Casino guide URLs ──────────────────────────────────────────────────────────
+  const guideEntries: MetadataRoute.Sitemap = casinoGuides.map((g) => ({
+    url: `${BASE}/casino-guides/${g.slug.current}/`,
+    ...lastMod(g._updatedAt),
+  }))
+
   return [
     // ── Root index pages (no fake lastmod) ──
     { url: `${BASE}/` },
     { url: `${BASE}/review/` },
     { url: `${BASE}/online-casino/payment/` },
     { url: `${BASE}/online-casino/software/` },
+    { url: `${BASE}/casino-guides/` },
 
     // ── Dynamic content (real lastmod from Sanity _updatedAt) ──
     ...bookmakerEntries,
     ...paymentEntries,
     ...softwareEntries,
+    ...guideEntries,
     ...posts.map((p) => ({
       url: `${BASE}/${p.slug.current}/`,
       ...lastMod(p.lastUpdated ?? p.publishedAt),

@@ -1,20 +1,60 @@
 import { createClient } from 'next-sanity'
 import { cache } from 'react'
 
-export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  apiVersion: '2026-04-22',
-  useCdn: true,
-})
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!
+const apiVersion = '2026-04-22'
 
-// Bypasses CDN — use for queries that need fresh/uncached data
-export const clientNoCdn = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  apiVersion: '2026-04-22',
-  useCdn: false,
-})
+const publishedClient = createClient({ projectId, dataset, apiVersion, useCdn: true })
+const publishedNoCdnClient = createClient({ projectId, dataset, apiVersion, useCdn: false })
+
+// Draft (preview) client — reads unpublished drafts. Only active when a read
+// token is set AND Next.js Draft Mode is enabled for the request.
+const readToken = process.env.SANITY_API_READ_TOKEN
+const draftClient = readToken
+  ? createClient({ projectId, dataset, apiVersion, useCdn: false, token: readToken, perspective: 'drafts' })
+  : null
+
+async function isPreview(): Promise<boolean> {
+  if (!draftClient) return false
+  try {
+    const { draftMode } = await import('next/headers')
+    return (await draftMode()).isEnabled
+  } catch {
+    return false // no request scope (e.g. build-time generateStaticParams)
+  }
+}
+
+// Draft-aware clients. When Draft Mode is on they read drafts (fresh, no cache);
+// otherwise they behave exactly like the published clients. Call sites use
+// `.fetch(...)` unchanged. The draft fetch is fault-tolerant: on any error it
+// logs the cause and falls back to the published client so preview never crashes.
+async function draftAwareFetch<R>(
+  fallback: (q: string, p: any, o: any) => Promise<R>,
+  query: string,
+  params: any,
+  options: any
+): Promise<R> {
+  if (await isPreview()) {
+    try {
+      return await draftClient!.fetch<R>(query, params, { cache: 'no-store' })
+    } catch (err) {
+      console.error('[preview] draft fetch failed, falling back to published:', err)
+      return fallback(query, params, options)
+    }
+  }
+  return fallback(query, params, options)
+}
+
+export const client = {
+  fetch: <R = any>(query: string, params: any = {}, options: any = {}): Promise<R> =>
+    draftAwareFetch<R>((q, p, o) => publishedClient.fetch<R>(q, p, o), query, params, options),
+}
+
+export const clientNoCdn = {
+  fetch: <R = any>(query: string, params: any = {}, options: any = {}): Promise<R> =>
+    draftAwareFetch<R>((q, p, o) => publishedNoCdnClient.fetch<R>(q, p, o), query, params, options),
+}
 
 // ─── Hreflang ─────────────────────────────────────────────────────────────────
 // Embed in any query as: "hreflangScript": ${HREFLANG_FRAGMENT}
@@ -282,6 +322,14 @@ export async function getBonusBySlug(slug: string) {
 // ─── Site settings (menus) ────────────────────────────────────────────────────
 // Wrapped in React cache() so Navbar + Footer share one fetch per page render.
 
+// ── Header nav projection (nested children → multi-level sub-menus) ──────────────
+const navSlugFields = () =>
+  `"pageSlug": pageRef->slug.current, "pageParentSlug": pageRef->parent->slug.current, "pageParent2Slug": pageRef->parent->parent->slug.current, "pageParent3Slug": pageRef->parent->parent->parent->slug.current, "pageParent4Slug": pageRef->parent->parent->parent->parent->slug.current, "bookmakerSlug": bookmakerRef->slug.current, "softwareSlug": softwareRef->slug.current, "paymentMethodSlug": paymentMethodRef->slug.current, "postSlug": postRef->slug.current, "casinoGuideSlug": casinoGuideRef->slug.current`
+const navChildren = (depth: number): string =>
+  depth <= 0 ? '' : `, children[] { label, url, ${navSlugFields()}${navChildren(depth - 1)} }`
+const headerNavProjection = () =>
+  `headerNav[] { label, url, isHighlighted, icon, ${navSlugFields()}${navChildren(3)} }`
+
 export const getSiteSettings = cache(async () => {
   return client.fetch(
     `*[_type == "siteSettings"][0] {
@@ -291,29 +339,10 @@ export const getSiteSettings = cache(async () => {
         name, slug, bio, linkedin, x, facebook,
         "imageUrl": image.asset->url
       },
-      headerNav[] {
-        label, url, isHighlighted, icon,
-        "pageSlug": pageRef->slug.current,
-        "pageParentSlug": pageRef->parent->slug.current,
-        "pageParent2Slug": pageRef->parent->parent->slug.current,
-        "pageParent3Slug": pageRef->parent->parent->parent->slug.current,
-        "bookmakerSlug": bookmakerRef->slug.current,
-        "softwareSlug": softwareRef->slug.current,
-        "paymentMethodSlug": paymentMethodRef->slug.current,
-        "postSlug": postRef->slug.current,
-        children[] {
-          label, url,
-          "pageSlug": pageRef->slug.current,
-          "pageParentSlug": pageRef->parent->slug.current,
-          "pageParent2Slug": pageRef->parent->parent->slug.current,
-          "pageParent3Slug": pageRef->parent->parent->parent->slug.current,
-          "bookmakerSlug": bookmakerRef->slug.current,
-          "softwareSlug": softwareRef->slug.current,
-          "paymentMethodSlug": paymentMethodRef->slug.current,
-          "postSlug": postRef->slug.current,
-        }
-      },
+      ${headerNavProjection()},
       footerTagline,
+      relatedPagesTitle,
+      socialLinks,
       footerColumns[] {
         title,
         items[] {
@@ -322,11 +351,11 @@ export const getSiteSettings = cache(async () => {
           "pageParentSlug": pageRef->parent->slug.current,
           "pageParent2Slug": pageRef->parent->parent->slug.current,
           "pageParent3Slug": pageRef->parent->parent->parent->slug.current,
-          "pageMarket": pageRef->market,
+          "pageParent4Slug": pageRef->parent->parent->parent->parent->slug.current,
           "bookmakerSlug": bookmakerRef->slug.current,
           "softwareSlug": softwareRef->slug.current,
           "paymentMethodSlug": paymentMethodRef->slug.current,
-          "postSlug": postRef->slug.current,
+          "postSlug": postRef->slug.current, "casinoGuideSlug": casinoGuideRef->slug.current,
         }
       },
       footerLongDisclaimer,
@@ -348,11 +377,11 @@ export const getSiteSettings = cache(async () => {
         "pageParentSlug": pageRef->parent->slug.current,
         "pageParent2Slug": pageRef->parent->parent->slug.current,
         "pageParent3Slug": pageRef->parent->parent->parent->slug.current,
-        "pageMarket": pageRef->market,
+        "pageParent4Slug": pageRef->parent->parent->parent->parent->slug.current,
         "bookmakerSlug": bookmakerRef->slug.current,
         "softwareSlug": softwareRef->slug.current,
         "paymentMethodSlug": paymentMethodRef->slug.current,
-        "postSlug": postRef->slug.current,
+        "postSlug": postRef->slug.current, "casinoGuideSlug": casinoGuideRef->slug.current,
       }
     }`,
     {},
@@ -455,7 +484,8 @@ export async function getSoftwareBySlug(slug: string) {
       "casinos": casinos[]-> {
         _id, name, slug, score, usp, url,
         "logo": logo { "url": asset->url, alt }
-      }
+      },
+      ${COMPARISON_TABLE_FRAGMENT}
     }`,
     { slug }
   )
@@ -545,6 +575,197 @@ export async function getCasinoGameBySlug(slug: string) {
   return client.fetch(
     `*[_type == "casinoGame" && slug.current == $slug && market == "global"][0] { ${CASINO_GAME_FIELDS} }`,
     { slug }
+  )
+}
+
+// ─── Casino Guides ────────────────────────────────────────────────────────────
+
+export async function getCasinoGuideBySlug(slug: string) {
+  return client.fetch(
+    `*[_type == "casinoGuide" && slug.current == $slug && (market == "global" || !defined(market))][0] { ${PAGE_FIELDS} }`,
+    { slug }
+  )
+}
+
+/** List of guides for the archive grid (light projection). */
+export async function getCasinoGuides() {
+  return client.fetch(
+    `*[_type == "casinoGuide" && (market == "global" || !defined(market)) && defined(slug.current)] | order(title asc) {
+      _id, title, "slug": slug.current, metaDescription, lastUpdated,
+      "featuredImage": featuredImage { "url": asset->url, alt }
+    }`
+  )
+}
+
+// ─── Related pages (bottom-of-page internal linking) ──────────────────────────
+
+export type RelatedItem = {
+  _id: string
+  _type: string
+  title?: string
+  name?: string
+  /** Editor-supplied link text that overrides the target's own title. */
+  label?: string
+  slug?: { current?: string }
+  a1?: string
+  a2?: string
+  a3?: string
+  a4?: string
+}
+
+const RELATED_PROJECTION = `
+  _id, _type, title, name, slug,
+  "a1": parent->slug.current,
+  "a2": parent->parent->slug.current,
+  "a3": parent->parent->parent->slug.current,
+  "a4": parent->parent->parent->parent->slug.current
+`
+
+/** Builds the public URL for a related item, based on its own type. */
+export function relatedItemHref(item: RelatedItem): string {
+  const slug = item.slug?.current
+  if (!slug) return '/'
+  switch (item._type) {
+    case 'page': {
+      const segments = [item.a4, item.a3, item.a2, item.a1, slug].filter(Boolean)
+      return `/${segments.join('/')}/`
+    }
+    case 'casinoGuide':
+      return `/casino-guides/${slug}/`
+    case 'paymentMethod':
+      return `/online-casino/payment/${slug}/`
+    case 'software':
+      return `/online-casino/software/${slug}/`
+    case 'bonus':
+      return `/online-casino/bonus/${slug}/`
+    case 'bookmaker':
+      return `/review/${slug}/`
+    case 'casinoGame':
+      return `/casino-games/${slug}/`
+    case 'post':
+      return `/${slug}/`
+    default:
+      return `/${slug}/`
+  }
+}
+
+/**
+ * Resolves the "Related pages" block for a document. Hand-picked only — nothing
+ * is shown unless an editor adds entries. Each entry may carry a custom `label`.
+ */
+export const getRelatedContent = cache(async (
+  docId: string,
+  limit = 12
+): Promise<{ title?: string; items: RelatedItem[] }> => {
+  if (!docId) return { items: [] }
+
+  const self = await client.fetch<{
+    relatedTitle?: string
+    related?: { ref?: string; label?: string }[]
+  } | null>(
+    `*[_id == $docId][0] {
+      relatedTitle,
+      "related": relatedPages[] {
+        "ref": coalesce(page._ref, _ref),
+        label
+      }
+    }`,
+    { docId }
+  )
+
+  if (!self) return { items: [] }
+
+  const title = self.relatedTitle
+  const picked = (self.related || []).filter((r) => r?.ref)
+  if (picked.length === 0) return { title, items: [] }
+
+  const ids = picked.map((r) => r.ref!) as string[]
+  const labelById = new Map(picked.map((r) => [r.ref!, r.label]))
+
+  const rows: RelatedItem[] = await client.fetch(
+    `*[_id in $ids && defined(slug.current)] { ${RELATED_PROJECTION} }`,
+    { ids }
+  )
+  const byId = new Map(rows.map((r) => [r._id, r]))
+
+  const items = ids
+    .map((id) => {
+      const row = byId.get(id)
+      if (!row) return null
+      const label = labelById.get(id)
+      return label ? { ...row, label } : row
+    })
+    .filter(Boolean)
+    .slice(0, Math.max(1, limit)) as RelatedItem[]
+
+  return { title, items }
+})
+
+/** Resolves a hand-picked list of documents for the "Page links" body block. */
+export const getLinkedPages = cache(async (ids: string[]): Promise<RelatedItem[]> => {
+  const clean = (ids || []).filter(Boolean)
+  if (clean.length === 0) return []
+
+  const rows: RelatedItem[] = await client.fetch(
+    `*[_id in $ids && defined(slug.current)] { ${RELATED_PROJECTION} }`,
+    { ids: clean }
+  )
+  const byId = new Map(rows.map((r) => [r._id, r]))
+  return clean.map((id) => byId.get(id)).filter(Boolean) as RelatedItem[]
+})
+
+// ─── Author lookup (for the callout / quote body block) ───────────────────────
+
+export type QuoteAuthor = {
+  _id: string
+  name?: string
+  role?: string
+  slug?: { current?: string }
+  imageUrl?: string
+}
+
+export const getAuthorById = cache(async (id: string): Promise<QuoteAuthor | null> => {
+  if (!id) return null
+  return client.fetch(
+    `*[_type == "author" && _id == $id][0] {
+      _id, name, role, slug, "imageUrl": image.asset->url
+    }`,
+    { id }
+  )
+})
+
+// ─── Provider box (body block) ────────────────────────────────────────────────
+
+export type ProviderBoxItem = {
+  _id: string
+  _type: 'paymentMethod' | 'software'
+  name?: string
+  slug?: { current?: string }
+  logo?: { url?: string; alt?: string }
+}
+
+export async function getProviderBoxItems(opts: {
+  provider: 'paymentMethod' | 'software'
+  ids?: string[]
+  limit?: number
+}): Promise<ProviderBoxItem[]> {
+  const type = opts.provider === 'software' ? 'software' : 'paymentMethod'
+  const ids = (opts.ids || []).filter(Boolean)
+  const projection = `_id, _type, name, slug, "logo": logo { "url": asset->url, alt }`
+
+  if (ids.length > 0) {
+    const rows: ProviderBoxItem[] = await client.fetch(
+      `*[_id in $ids && _type in ["paymentMethod", "software"]] { ${projection} }`,
+      { ids }
+    )
+    const byId = new Map(rows.map((r) => [r._id, r]))
+    return ids.map((id) => byId.get(id)).filter(Boolean) as ProviderBoxItem[]
+  }
+
+  const limit = Math.max(1, Math.min(opts.limit || 6, 24))
+  return client.fetch(
+    `*[_type == $type && (market == "global" || !defined(market))] | order(name asc) [0...$limit] { ${projection} }`,
+    { type, limit }
   )
 }
 

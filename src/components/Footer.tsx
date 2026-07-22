@@ -1,19 +1,21 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { getSiteSettings } from '@/lib/sanity'
+import { SocialLinks, type SocialLinkData } from './SocialLinks'
 
 function resolveUrl(item: {
-  url?: string; pageSlug?: string; pageParentSlug?: string; pageParent2Slug?: string; pageParent3Slug?: string; pageMarket?: string;
-  bookmakerSlug?: string; softwareSlug?: string; paymentMethodSlug?: string; postSlug?: string;
+  url?: string; pageSlug?: string; pageParentSlug?: string; pageParent2Slug?: string; pageParent3Slug?: string; pageParent4Slug?: string; pageMarket?: string;
+  bookmakerSlug?: string; softwareSlug?: string; paymentMethodSlug?: string; postSlug?: string; casinoGuideSlug?: string;
 }): string {
   if (item.pageSlug) {
-    const segments = [item.pageParent3Slug, item.pageParent2Slug, item.pageParentSlug, item.pageSlug].filter(Boolean)
+    const segments = [item.pageParent4Slug, item.pageParent3Slug, item.pageParent2Slug, item.pageParentSlug, item.pageSlug].filter(Boolean)
     return `/${segments.join('/')}/`
   }
   if (item.bookmakerSlug) return `/review/${item.bookmakerSlug}/`
   if (item.softwareSlug) return `/online-casino/software/${item.softwareSlug}/`
   if (item.paymentMethodSlug) return `/online-casino/payment/${item.paymentMethodSlug}/`
   if (item.postSlug) return `/${item.postSlug}/`
+  if (item.casinoGuideSlug) return `/casino-guides/${item.casinoGuideSlug}/`
   return item.url || '/'
 }
 
@@ -53,6 +55,7 @@ interface FooterProps {
   note?: string
   disclaimer?: string
   bottomNav?: any[]
+  socialLinks?: SocialLinkData | null
 }
 
 export async function Footer({
@@ -64,6 +67,7 @@ export async function Footer({
   note: noteProp,
   disclaimer: disclaimerProp,
   bottomNav: bottomNavProp,
+  socialLinks: socialLinksProp,
 }: FooterProps = {}) {
   const year = new Date().getFullYear()
 
@@ -77,6 +81,7 @@ export async function Footer({
   const note         = noteProp         ?? settings?.footerNote         ?? `© ${year} Spelaisverige.com · Spela ansvarsfullt · 18+`
   const disclaimer   = disclaimerProp   ?? settings?.footerDisclaimer   ?? 'Affiliatelänkar kan förekomma · Se villkor hos casinot'
   const bottomNav    = bottomNavProp    ?? settings?.footerBottomNav    ?? []
+  const socialLinks  = socialLinksProp  ?? settings?.socialLinks        ?? null
 
   return (
     <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-footer)', marginTop: '80px' }}>
@@ -105,6 +110,7 @@ export async function Footer({
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
               {tagline}
             </p>
+            <SocialLinks links={socialLinks} />
           </div>
 
           {/* Link columns — each gets equal space */}

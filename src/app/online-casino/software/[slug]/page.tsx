@@ -2,6 +2,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { JsonLd } from '@/components/JsonLd'
 import { HreflangLinks } from '@/components/HreflangLinks'
 import { SoftwareHero } from '@/components/SoftwareHero'
+import { ComparisonTable } from '@/components/ComparisonTable'
+import { RelatedPages } from '@/components/RelatedPages'
 import { PortableTextRenderer } from '@/components/PortableTextRenderer'
 import { TableOfContents } from '@/components/TableOfContents'
 import { MobileToc } from '@/components/MobileToc'
@@ -83,6 +85,18 @@ export default async function SoftwareSlugPage({ params }: Props) {
         intro={provider.intro}
       />
 
+      {/* Comparison table — configured on the CMS document in Sanity Studio */}
+      {(provider as any).showComparisonTable && (provider as any).comparisonTable && (
+        <div className="section" style={{ paddingBottom: (provider.body && provider.body.length > 0) ? '0' : undefined }}>
+          {(provider as any).comparisonTableTitle && (
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 700, color: 'var(--text)', marginBottom: '20px' }}>
+              {replaceDateVars((provider as any).comparisonTableTitle)}
+            </h2>
+          )}
+          <ComparisonTable data={(provider as any).comparisonTable} />
+        </div>
+      )}
+
       {/* Body content */}
       {provider.body && provider.body.length > 0 && (
         <div className="article-layout">
@@ -137,6 +151,8 @@ export default async function SoftwareSlugPage({ params }: Props) {
           </div>
         </div>
       )}
+
+      <RelatedPages docId={provider?._id} />
     </>
   )
 }

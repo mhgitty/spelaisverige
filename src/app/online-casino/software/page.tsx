@@ -9,6 +9,7 @@ import { MobileToc } from '@/components/MobileToc'
 import { JsonLd } from '@/components/JsonLd'
 import { HreflangLinks } from '@/components/HreflangLinks'
 import { SoftwareProvidersGrid } from '@/components/SoftwareProvidersGrid'
+import { RelatedPages } from '@/components/RelatedPages'
 import { getPageByPath, getSoftwareProviders, getSiteSettings } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
 import { notFound } from 'next/navigation'
@@ -119,6 +120,7 @@ export default async function SoftwareIndexPage() {
       )}
 
       <Footer />
+      <RelatedPages docId={page?._id} />
     </>
   )
 }
