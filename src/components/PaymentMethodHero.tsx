@@ -60,7 +60,7 @@ export function PaymentMethodHero({
     <div style={{
       background: 'var(--bg-hero)',
       borderBottom: '1px solid var(--border)',
-      padding: '40px 15px 36px',
+      padding: '16px 15px 36px',
     }}>
       <div style={{ maxWidth: '1250px', margin: '0 auto' }}>
 

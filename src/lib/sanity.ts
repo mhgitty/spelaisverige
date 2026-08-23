@@ -8,9 +8,13 @@ const apiVersion = '2026-04-22'
 const publishedClient = createClient({ projectId, dataset, apiVersion, useCdn: true })
 const publishedNoCdnClient = createClient({ projectId, dataset, apiVersion, useCdn: false })
 
-// Draft (preview) client — reads unpublished drafts. Only active when a read
-// token is set AND Next.js Draft Mode is enabled for the request.
-const readToken = process.env.SANITY_API_READ_TOKEN
+// Draft (preview) client — reads unpublished drafts. Only active when a token
+// is set AND Next.js Draft Mode is enabled for the request. Prefer the write
+// token: it reliably has permission to read draft (unpublished) documents,
+// whereas a "Viewer"-role read token often does NOT — which silently breaks
+// preview of never-published pages. Server-only (never NEXT_PUBLIC).
+const readToken =
+  process.env.SANITY_WRITE_TOKEN || process.env.SANITY_API_READ_TOKEN
 const draftClient = readToken
   ? createClient({ projectId, dataset, apiVersion, useCdn: false, token: readToken, perspective: 'drafts' })
   : null
@@ -131,7 +135,7 @@ export async function getPostBySlug(slug: string) {
 // Pages store showComparisonTable (bool) + comparisonTemplate (reference).
 // We expand the reference inline so the frontend gets the same data shape.
 const COMPARISON_TABLE_FRAGMENT = `
-  showComparisonTable, comparisonTableTitle,
+  showComparisonTable, comparisonTableTitle, heroCompareButton, heroCompareButtonText,
   "comparisonTable": comparisonTemplate-> {
     tableType,
     bonuses[]-> {
@@ -201,6 +205,7 @@ const PAGE_FIELDS = `
   "a4Title": parent->parent->parent->parent->title,
   "featuredImage": featuredImage { "url": asset->url, alt },
   lastUpdated, hideAuthor,
+  heroQuickLinks[] { label, headingText },
   "author": author-> {
     name, slug, bio, linkedin, x, facebook,
     "imageUrl": image.asset->url

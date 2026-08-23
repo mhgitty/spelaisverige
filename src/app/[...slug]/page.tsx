@@ -11,6 +11,7 @@ import { HreflangHead } from '@/components/HreflangHead'
 import { RelatedPages } from '@/components/RelatedPages'
 import { getPageByPath, getSiteSettings, getHreflangScript } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
+import { headingId } from '@/lib/headingId'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -78,6 +79,17 @@ export default async function DynamicPage({ params }: Props) {
     ],
   }
 
+  const bodyTypes = new Set(((page.body as any[]) || []).map((b: any) => b?._type))
+  const heroButtons: { text: string; targetId: string; variant?: 'solid' | 'outline' }[] = []
+  if (page.showComparisonTable && page.comparisonTable && page.heroCompareButton)
+    heroButtons.push({ text: page.heroCompareButtonText || 'Se alla bonusar', targetId: 'comparison-list', variant: 'solid' })
+  if (bodyTypes.has('prosConsBlock')) heroButtons.push({ text: 'Fördelar & Nackdelar', targetId: 'pros-cons', variant: 'outline' })
+  if (bodyTypes.has('howToBlock'))    heroButtons.push({ text: 'Så gör du',           targetId: 'how-to',    variant: 'outline' })
+  if (bodyTypes.has('faqBlock'))      heroButtons.push({ text: 'Vanliga frågor',      targetId: 'faq',       variant: 'outline' })
+  for (const ql of (((page as any).heroQuickLinks as any[]) || [])) {
+    if (ql?.label && ql?.headingText) heroButtons.push({ text: ql.label, targetId: headingId(replaceDateVars(ql.headingText)), variant: 'outline' })
+  }
+
   return (
     <>
       <HreflangHead script={hreflangScript} />
@@ -89,6 +101,7 @@ export default async function DynamicPage({ params }: Props) {
         author={author}
         factChecker={page.factChecker}
         updatedAt={page.lastUpdated}
+        buttons={heroButtons}
         breadcrumbs={[
           { label: 'Hem', href: '/' },
           ...slug.slice(0, -1).map((seg, idx) => ({
@@ -101,7 +114,7 @@ export default async function DynamicPage({ params }: Props) {
 
       {/* Comparison table — configured per page in Sanity Studio */}
       {page.showComparisonTable && page.comparisonTable && (
-        <div className="section" style={{ paddingBottom: page.body ? '0' : undefined }}>
+        <div id="comparison-list" className="section" style={{ paddingBottom: page.body ? '0' : undefined, scrollMarginTop: '80px' }}>
           {page.comparisonTableTitle && (
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 700, color: 'var(--text)', marginBottom: '20px' }}>
               {page.comparisonTableTitle}

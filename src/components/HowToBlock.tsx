@@ -13,8 +13,28 @@ interface HowToBlockProps {
 export function HowToBlock({ value }: HowToBlockProps) {
   if (!value?.items?.length) return null
 
+  // Emit HowTo structured data from the steps we already collect.
+  const steps = value.items.filter((s) => s?.title || s?.body)
+  const howToSchema = steps.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: value.title || 'Så gör du',
+    step: steps.map((s, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      ...(s.title ? { name: s.title } : {}),
+      text: s.body || s.title,
+    })),
+  } : null
+
   return (
     <div style={{ margin: '32px 0' }}>
+      {howToSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+        />
+      )}
       {value.title && (
         <h2 style={{
           fontFamily: 'var(--font-display)',
@@ -28,24 +48,25 @@ export function HowToBlock({ value }: HowToBlockProps) {
         </h2>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {value.items.map((item, i) => (
           <div key={i} style={{
             display: 'grid',
-            gridTemplateColumns: '52px 1fr',
-            gap: '20px',
+            gridTemplateColumns: '36px 1fr',
+            columnGap: '18px',
+            rowGap: '10px',
             background: 'var(--bg-card)',
             border: '1px solid var(--border)',
-            borderRadius: '14px',
-            padding: '22px',
-            alignItems: 'flex-start',
+            borderRadius: '16px',
+            padding: '26px 28px',
+            alignItems: 'center',
           }}>
             {/* Number badge */}
             <div style={{
-              width: '52px',
-              height: '52px',
+              width: '36px',
+              height: '36px',
               background: 'var(--green)',
-              borderRadius: '12px',
+              borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -53,8 +74,8 @@ export function HowToBlock({ value }: HowToBlockProps) {
             }}>
               <span style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: '22px',
-                fontWeight: 800,
+                fontSize: '15px',
+                fontWeight: 700,
                 color: '#fff',
                 lineHeight: 1,
               }}>
@@ -62,31 +83,33 @@ export function HowToBlock({ value }: HowToBlockProps) {
               </span>
             </div>
 
-            {/* Content */}
-            <div>
-              {item.title && (
-                <h3 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  color: 'var(--text)',
-                  margin: '0 0 8px',
-                  letterSpacing: '-0.01em',
-                }}>
-                  {item.title}
-                </h3>
-              )}
-              {item.body && (
-                <p style={{
-                  fontSize: '14.5px',
-                  color: 'var(--text-muted)',
-                  lineHeight: 1.75,
-                  margin: 0,
-                }}>
-                  {item.body}
-                </p>
-              )}
-            </div>
+            {/* Title (aligned next to the badge) */}
+            {item.title && (
+              <h3 style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(18px, 2.2vw, 21px)',
+                fontWeight: 700,
+                color: 'var(--text)',
+                margin: 0,
+                letterSpacing: '-0.02em',
+                alignSelf: 'center',
+              }}>
+                {item.title}
+              </h3>
+            )}
+
+            {/* Body (spans under the title, indented past the badge) */}
+            {item.body && (
+              <p style={{
+                gridColumn: '2',
+                fontSize: '15px',
+                color: 'var(--text-muted)',
+                lineHeight: 1.7,
+                margin: 0,
+              }}>
+                {item.body}
+              </p>
+            )}
           </div>
         ))}
       </div>

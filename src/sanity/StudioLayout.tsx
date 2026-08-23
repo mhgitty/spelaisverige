@@ -1,7 +1,24 @@
 'use client'
-import { type ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 
 export function WideStudioLayout({ renderDefault, ...props }: { renderDefault: (p: any) => ReactNode; [key: string]: any }) {
+  // The Studio document editor renders fields inside a native <form>. Studio
+  // autosaves via the API and never needs a real form submit, but a toolbar
+  // button that defaults to type="submit" (e.g. the Portable Text "add link"
+  // button) submits the form → full page reload + jump to top. Block any
+  // native submit that originates from inside the document editor.
+  useEffect(() => {
+    const onSubmit = (e: Event) => {
+      const se = e as SubmitEvent
+      const origin = (se.submitter as HTMLElement | null) ?? (e.target as HTMLElement | null)
+      if (origin?.closest?.('[data-testid="document-panel-document-view"]')) {
+        e.preventDefault()
+      }
+    }
+    document.addEventListener('submit', onSubmit, true)
+    return () => document.removeEventListener('submit', onSubmit, true)
+  }, [])
+
   return (
     <>
       <style>{`
@@ -31,7 +48,10 @@ export function WideStudioLayout({ renderDefault, ...props }: { renderDefault: (
           color: #ffffff !important;
         }
       `}</style>
-      <div style={{ '--sanity-sidebar-width': '260px' } as React.CSSProperties}>
+      {/* display:contents keeps this wrapper out of the layout/height chain —
+          a plain block div here collapses the document list's scroll height,
+          which caps virtualized lists at ~14 visible rows. */}
+      <div style={{ display: 'contents', '--sanity-sidebar-width': '260px' } as React.CSSProperties}>
         {renderDefault(props)}
       </div>
     </>
