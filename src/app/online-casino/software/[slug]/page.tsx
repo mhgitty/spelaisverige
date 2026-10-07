@@ -7,7 +7,9 @@ import { RelatedPages } from '@/components/RelatedPages'
 import { PortableTextRenderer } from '@/components/PortableTextRenderer'
 import { TableOfContents } from '@/components/TableOfContents'
 import { MobileToc } from '@/components/MobileToc'
-import { getSoftwareBySlug, client } from '@/lib/sanity'
+import { getSoftwareBySlug, getSlotsByProvider, client } from '@/lib/sanity'
+import { SlotsArchive } from '@/components/SlotsArchive'
+import { ComparisonJumpButton } from '@/components/ComparisonJumpButton'
 import { replaceDateVars } from '@/lib/dateVars'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -43,6 +45,7 @@ export default async function SoftwareSlugPage({ params }: Props) {
   const provider = await getSoftwareBySlug(slug).catch(() => null)
   if (!provider) notFound()
 
+  const providerSlots = await getSlotsByProvider((provider as any)._id)
   const canonical = `${BASE}/online-casino/software/${slug}/`
 
   const jsonLd = {
@@ -85,7 +88,15 @@ export default async function SoftwareSlugPage({ params }: Props) {
         intro={provider.intro}
       />
 
+      {/* Slots by this provider */}
+      {providerSlots.length > 0 && (
+        <div className="section">
+          <SlotsArchive slots={providerSlots as any} basePath="/online-slots" flag="🌍" hideProviders mode="loadmore" loadStep={6} title={`Slots från ${provider.name}`} />
+        </div>
+      )}
+
       {/* Comparison table — configured on the CMS document in Sanity Studio */}
+      <ComparisonJumpButton data={provider} />
       {(provider as any).showComparisonTable && (provider as any).comparisonTable && (
         <div className="section" style={{ paddingBottom: (provider.body && provider.body.length > 0) ? '0' : undefined }}>
           {(provider as any).comparisonTableTitle && (

@@ -32,8 +32,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = replaceDateVars(page.metaTitle || page.title)
   const description = replaceDateVars(page.metaDescription || page.intro || '')
   const canonical = `${BASE}${buildPath(slug)}`
-  const ogImg = (page as any).ogImage
-  return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical, type: 'article', images: ogImg?.url ? [{ url: ogImg.url }] : [{ url: `${BASE}/og.png` }] } }
+  const ogUrl = (page as any).ogImage?.url || (page as any).featuredImage?.url || `${BASE}/og.png`
+  return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical, type: 'article', images: [{ url: ogUrl }] }, twitter: { card: 'summary_large_image', images: [ogUrl] } }
 }
 
 export default async function DynamicPage({ params }: Props) {
@@ -114,7 +114,7 @@ export default async function DynamicPage({ params }: Props) {
 
       {/* Comparison table — configured per page in Sanity Studio */}
       {page.showComparisonTable && page.comparisonTable && (
-        <div id="comparison-list" className="section" style={{ paddingBottom: page.body ? '0' : undefined, scrollMarginTop: '80px' }}>
+        <div className="section" style={{ paddingBottom: page.body ? '0' : undefined }}>
           {page.comparisonTableTitle && (
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 700, color: 'var(--text)', marginBottom: '20px' }}>
               {page.comparisonTableTitle}

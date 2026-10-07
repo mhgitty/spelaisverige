@@ -11,6 +11,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { HreflangLinks } from '@/components/HreflangLinks'
 import { getPageBySlug, getCasinoGuides, getSiteSettings } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
+import { heroButtonsFor } from '@/lib/heroButtons'
 import type { Metadata } from 'next'
 import { RelatedPages } from '@/components/RelatedPages'
 
@@ -60,6 +61,7 @@ export default async function CasinoGuidesPage() {
       <HreflangLinks docId={(page as any)?._id} />
       <Navbar />
       <HeroSection
+        buttons={heroButtonsFor(page)}
         title={title}
         intro={intro}
         author={author}

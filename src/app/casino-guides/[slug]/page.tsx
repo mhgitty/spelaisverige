@@ -10,6 +10,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { HreflangLinks } from '@/components/HreflangLinks'
 import { getCasinoGuideBySlug, getSiteSettings, client } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
+import { heroButtonsFor } from '@/lib/heroButtons'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { RelatedPages } from '@/components/RelatedPages'
@@ -81,6 +82,7 @@ export default async function CasinoGuidePage({ params }: Props) {
       <HreflangLinks docId={(guide as any)._id} />
       <Navbar />
       <HeroSection
+        buttons={heroButtonsFor(guide)}
         title={guide.title}
         intro={(guide as any).intro ?? undefined}
         author={author}

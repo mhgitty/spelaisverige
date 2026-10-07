@@ -16,6 +16,7 @@ import { PaymentMethodsGrid } from '@/components/PaymentMethodsGrid'
 import { RelatedPages } from '@/components/RelatedPages'
 import { getPageByPath, getPaymentMethods, getSiteSettings } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
+import { heroButtonsFor } from '@/lib/heroButtons'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -71,6 +72,7 @@ export default async function PaymentMethodsIndexPage() {
       <Navbar />
 
       <HeroSection
+        buttons={heroButtonsFor(page)}
         title={page.title}
         intro={page.intro}
         author={author}

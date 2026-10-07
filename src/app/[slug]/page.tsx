@@ -14,6 +14,7 @@ import { HreflangLinks } from '@/components/HreflangLinks'
 import { RelatedPages } from '@/components/RelatedPages'
 import { getPostBySlug, getPageByPath, getPosts, getSiteSettings, client } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
+import { heroButtonsFor } from '@/lib/heroButtons'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -71,7 +72,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = replaceDateVars(page.metaTitle || page.title)
     const description = replaceDateVars(page.metaDescription || page.intro || '')
     const canonical = `${BASE}/${slug}/`
-    return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical } }
+    const ogUrl = (page as any).ogImage?.url || (page as any).featuredImage?.url || `${BASE}/og.png`
+    return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical, type: 'article', images: [{ url: ogUrl }] }, twitter: { card: 'summary_large_image', images: [ogUrl] } }
   }
 
   return {}
@@ -213,6 +215,7 @@ export default async function SlugPage({ params }: Props) {
       <HreflangLinks docId={(page as any)._id} />
       <Navbar />
       <HeroSection
+        buttons={heroButtonsFor(page)}
         title={page.title}
         intro={page.intro}
         author={author}

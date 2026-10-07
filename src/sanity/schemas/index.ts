@@ -14,11 +14,13 @@ import { paymentMethodType } from './paymentMethod'
 import { softwareType } from './software'
 import { casinoGameType } from './casinoGame'
 import { casinoGuideType } from './casinoGuide'
+import { slotmachineType } from './slotmachine'
 
 export const schemaTypes = [
   siteSettingsType,
   homepageType,
   casinoGuideType,
+  slotmachineType,
   bookmakerType,
   bonusType,
   comparisonTableTemplateType,

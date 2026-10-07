@@ -10,6 +10,7 @@ import { HreflangLinks } from '@/components/HreflangLinks'
 import { MobileToc } from '@/components/MobileToc'
 import { getPageBySlug, getSiteSettings } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
+import { heroButtonsFor } from '@/lib/heroButtons'
 import type { Metadata } from 'next'
 
 export const revalidate = 3600
@@ -58,6 +59,7 @@ export default async function BettingSiderPage() {
       <>
         <Navbar />
         <HeroSection
+          buttons={heroButtonsFor(page)}
         title="Casinorecensioner"
         intro="Översikt över alla casinorecensioner."
         breadcrumbs={[{ label: 'Hem', href: '/' }, { label: 'Casinorecensioner' }]}

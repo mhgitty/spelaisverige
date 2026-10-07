@@ -4,7 +4,7 @@ import { defineField, defineType, type SlugIsUniqueValidator } from 'sanity'
  * Slug uniqueness scoped per market.
  * The same slug (e.g. "online-casino") can exist once in global, once in ca, once in au.
  */
-const isSlugUniquePerMarket: SlugIsUniqueValidator = async (slug, context) => {
+export const isSlugUniquePerMarket: SlugIsUniqueValidator = async (slug, context) => {
   const { document, getClient } = context
   const client = getClient({ apiVersion: '2026-04-22' })
   const market = (document as any)?.market || 'global'
@@ -640,6 +640,20 @@ export const bodyField = defineField({
           initialValue: 'How It Works',
         },
         {
+          name: 'intro',
+          title: 'Intro (optional)',
+          type: 'text',
+          rows: 3,
+          description: 'Short text shown under the title, above the steps',
+        },
+        {
+          name: 'totalMinutes',
+          title: 'Time to complete (minutes, optional)',
+          type: 'number',
+          description: 'Shown as a "≈ X min" badge and added to the HowTo structured data',
+          validation: (r: any) => r.min(1).max(1000),
+        },
+        {
           name: 'items',
           title: 'Steps',
           type: 'array',
@@ -649,10 +663,32 @@ export const bodyField = defineField({
             title: 'Step',
             fields: [
               { name: 'title', title: 'Step title', type: 'string' },
-              { name: 'body',  title: 'Body text',  type: 'text', rows: 3 },
+              {
+                name: 'body', title: 'Body text', type: 'array',
+                of: [{
+                  type: 'block',
+                  styles: [{ title: 'Normal', value: 'normal' }],
+                  lists: [],
+                  marks: {
+                    decorators: [
+                      { title: 'Bold', value: 'strong' },
+                      { title: 'Italic', value: 'em' },
+                    ],
+                    annotations: [{
+                      name: 'link', type: 'object', title: 'Link',
+                      fields: [
+                        { name: 'href', type: 'url', title: 'URL',
+                          validation: (r: any) => r.uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }) },
+                        { name: 'blank', type: 'boolean', title: 'Open in new tab', initialValue: false },
+                        { name: 'nofollow', type: 'boolean', title: 'Nofollow', initialValue: false },
+                      ],
+                    }],
+                  },
+                }],
+              },
             ],
             preview: {
-              select: { title: 'title', subtitle: 'body' },
+              select: { title: 'title' },
             },
           }],
         },
@@ -671,6 +707,13 @@ export const pageType = defineType({
   name: 'page',
   title: 'Pages',
   type: 'document',
+  __experimental_search: [
+    { weight: 10, path: 'title' },
+    { weight: 6, path: 'slug.current' },
+    { weight: 3, path: 'metaTitle' },
+    { weight: 0, path: 'body' },
+    { weight: 0, path: 'intro' },
+  ],
   groups: [
     { name: 'content', title: 'Content' },
     { name: 'seo',     title: 'SEO' },
@@ -773,6 +816,22 @@ export const pageType = defineType({
       group: 'content',
       initialValue: false,
       description: 'When enabled, the author bar and author card are not shown on this page (e.g. About us, Privacy Policy)',
+    }),
+    defineField({
+      name: 'featuredSlots',
+      title: '⭐ Featured slots (archive top)',
+      type: 'array',
+      group: 'content',
+      hidden: ({ document }) => (document?.slug as any)?.current !== 'online-slots',
+      validation: (r) => r.max(4),
+      description: 'Only on the “online-slots” page: pick up to 4 slots to show first (in this order) in the slots archive.',
+      of: [{
+        type: 'reference',
+        to: [{ type: 'slotmachine' }],
+        options: {
+          filter: () => ({ filter: 'market == "global" || !defined(market)' }),
+        },
+      }],
     }),
     defineField({ name: 'metaTitle', title: 'Meta title', type: 'string', group: 'seo' }),
     defineField({ name: 'metaDescription', title: 'Meta description', type: 'text', rows: 3, group: 'seo' }),

@@ -12,6 +12,7 @@ import { SoftwareProvidersGrid } from '@/components/SoftwareProvidersGrid'
 import { RelatedPages } from '@/components/RelatedPages'
 import { getPageByPath, getSoftwareProviders, getSiteSettings } from '@/lib/sanity'
 import { replaceDateVars } from '@/lib/dateVars'
+import { heroButtonsFor } from '@/lib/heroButtons'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -67,6 +68,7 @@ export default async function SoftwareIndexPage() {
       <Navbar />
 
       <HeroSection
+        buttons={heroButtonsFor(page)}
         title={page.title}
         intro={page.intro}
         author={author}

@@ -90,6 +90,13 @@ export default defineConfig({
                   .title('Casino Guides')
               ),
             S.listItem()
+              .title('🎰 Slot Machines')
+              .schemaType('slotmachine')
+              .child(
+                S.documentTypeList('slotmachine')
+                  .title('Slot Machines')
+              ),
+            S.listItem()
               .title('📊 Comparison Templates')
               .schemaType('comparisonTableTemplate')
               .child(
@@ -149,7 +156,7 @@ export default defineConfig({
 
   document: {
     actions: (prev, ctx) => {
-      const PREVIEW_TYPES = ['homepage', 'post', 'page', 'bookmaker', 'bonus', 'paymentMethod', 'software', 'casinoGame', 'casinoGuide']
+      const PREVIEW_TYPES = ['homepage', 'post', 'page', 'bookmaker', 'bonus', 'paymentMethod', 'software', 'casinoGame', 'casinoGuide', 'slotmachine']
       if (PREVIEW_TYPES.includes(ctx.schemaType)) {
         return [previewAction, ...prev]
       }

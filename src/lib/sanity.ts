@@ -583,6 +583,79 @@ export async function getCasinoGameBySlug(slug: string) {
   )
 }
 
+// ─── Slot Machines ──────────────────────────────────────────────────────────────
+
+const SLOTMACHINE_FIELDS = `
+  _id, name, titel, slug, market,
+  "logo":    logo    { "url": asset->url, alt },
+  "ogImage": ogImage { "url": asset->url, alt },
+  "provider": provider-> { name, "slug": slug.current, market },
+  rtp, volatility, maxWin, grid, paylines, mechanic, theme,
+  features, minBetPerSpin, maxBetPerSpin, hasBonusBuy, hasJackpot,
+  hitFrequencyPercent, releaseYear,
+  demoIframe, demoIframeTitle,
+  "promoCasino": coalesce(
+    highlightCasino-> {
+      _id, name, "slug": slug.current, url, market,
+      "bonus": coalesce(indbetalingsbonus, usp),
+      "logo": logo { "url": asset->url, alt }
+    },
+    *[_type == "bookmaker" && defined(slug.current) && (market == "global" || !defined(market))] | order(coalesce(score, 0) desc)[0] {
+      _id, name, "slug": slug.current, url, market,
+      "bonus": coalesce(indbetalingsbonus, usp),
+      "logo": logo { "url": asset->url, alt }
+    }
+  ),
+  "intro": intro[] { ..., _type == "image" => { ..., "url": asset->url } },
+  "body":  body[]  { ..., _type == "image" => { ..., "url": asset->url } },
+  metaTitle, metaDescription,
+  "casinos": casinos[]-> {
+    _id, name, slug, usp, score, market,
+    indbetalingsbonus, minIndbetaling, gennemspilskrav, url, terms,
+    "logo": logo { "url": asset->url, alt },
+    "paymentMethods": paymentMethods[]-> { _id, name, "slug": slug.current, "logo": logo { "url": asset->url, alt } },
+    "software": software[]-> { _id, name, "slug": slug.current, "logo": logo { "url": asset->url, alt } }
+  }
+`
+
+export async function getSlotmachineBySlug(slug: string) {
+  return client.fetch(
+    `*[_type == "slotmachine" && slug.current == $slug && (market == "global" || !defined(market))][0] { ${SLOTMACHINE_FIELDS} }`,
+    { slug }
+  )
+}
+
+// ─── Slot archive (listing + filters) ─────────────────────────────────────────
+const SLOT_ARCHIVE_FIELDS = `
+  _id, name, "slug": slug.current, market,
+  "logo": logo.asset->url,
+  "provider": provider->name,
+  rtp, volatility, grid, paylines, mechanic, theme, features,
+  minBetPerSpin, maxBetPerSpin, hasBonusBuy, hasJackpot, releaseYear
+`
+
+export async function getSlotmachinesForArchive() {
+  return client.fetch(
+    `*[_type == "slotmachine" && defined(slug.current) && (market == "global" || !defined(market))] | order(name asc) { ${SLOT_ARCHIVE_FIELDS} }`
+  ).catch(() => [])
+}
+
+// Slots whose provider reference points to a given software document.
+export async function getSlotsByProvider(providerId: string) {
+  if (!providerId) return []
+  return client.fetch(
+    `*[_type == "slotmachine" && provider._ref == $id && defined(slug.current)] | order(name asc) { ${SLOT_ARCHIVE_FIELDS} }`,
+    { id: providerId }
+  ).catch(() => [])
+}
+
+// The editor-picked slot IDs (in order) to show first in the archive.
+export async function getArchiveFeaturedSlotIds(): Promise<string[]> {
+  return client.fetch<string[]>(
+    `*[_type == "page" && slug.current == "online-slots" && (market == "global" || !defined(market))][0].featuredSlots[]._ref`
+  ).then((r) => r ?? []).catch(() => [])
+}
+
 // ─── Casino Guides ────────────────────────────────────────────────────────────
 
 export async function getCasinoGuideBySlug(slug: string) {
@@ -637,6 +710,8 @@ export function relatedItemHref(item: RelatedItem): string {
     }
     case 'casinoGuide':
       return `/casino-guides/${slug}/`
+    case 'slotmachine':
+      return `/online-slots/${slug}/`
     case 'paymentMethod':
       return `/online-casino/payment/${slug}/`
     case 'software':

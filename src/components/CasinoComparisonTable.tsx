@@ -177,7 +177,20 @@ function LogoStack({ label, items, max = 4 }: { label: string; items: LogoRef[];
 }
 
 // ─── One casino row ─────────────────────────────────────────────────────────────
-function CasinoRow({ casino, currency }: { casino: Casino; currency: string }) {
+function RankCircle({ rank }: { rank: number }) {
+  return (
+    <span style={{
+      position: 'absolute', top: '-13px', left: '-11px', zIndex: 3,
+      width: '34px', height: '34px', borderRadius: '50%',
+      background: rank === 1 ? '#E0A400' : 'var(--green)',
+      color: '#fff', fontWeight: 800, fontSize: '15px',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      border: '2px solid var(--bg-card)', boxShadow: '0 2px 6px rgba(0,0,0,0.18)',
+    }}>{rank}</span>
+  )
+}
+
+function CasinoRow({ casino, currency, rank }: { casino: Casino; currency: string; rank: number }) {
   // All casinos live under /review/.
   const reviewHref = `/review/${casino.slug.current}/`
   const hasStats = casino.minIndbetaling != null || !!casino.gennemspilskrav
@@ -192,9 +205,10 @@ function CasinoRow({ casino, currency }: { casino: Casino; currency: string }) {
       padding: '16px 20px 14px',
       boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
     }}>
+      <RankCircle rank={rank} />
       {casino.usp && (
         <span style={{
-          position: 'absolute', top: '-11px', left: '18px',
+          position: 'absolute', top: '-11px', left: '32px',
           display: 'inline-flex', alignItems: 'center', gap: '5px',
           background: 'var(--green)', color: '#fff',
           fontSize: '11.5px', fontWeight: 600, lineHeight: 1.3,
@@ -334,8 +348,8 @@ export function CasinoComparisonTable({ casinos, currency = '$', disclosure = DE
         </div>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-        {casinos.map((c) => (
-          <CasinoRow key={c._id} casino={c} currency={currency} />
+        {casinos.map((c, i) => (
+          <CasinoRow key={c._id} casino={c} currency={currency} rank={i + 1} />
         ))}
       </div>
     </div>
