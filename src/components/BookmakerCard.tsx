@@ -89,7 +89,7 @@ export function BookmakerCard({
         {/* Info */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-            <Link href={`/review/${slug.current}`} style={{ textDecoration: 'none' }}>
+            <Link href={`/online-casinos/recensioner/${slug.current}`} style={{ textDecoration: 'none' }}>
               <span style={{ fontFamily: 'var(--font-display)', fontSize: '17px', fontWeight: 700, color: 'var(--text)' }}>
                 {name}
               </span>
@@ -143,7 +143,7 @@ export function BookmakerCard({
               Hämta bonus →
             </a>
           )}
-          <Link href={`/review/${slug.current}`} style={{ fontSize: '12.5px', color: 'var(--text-muted)', textDecoration: 'none' }}>
+          <Link href={`/online-casinos/recensioner/${slug.current}`} style={{ fontSize: '12.5px', color: 'var(--text-muted)', textDecoration: 'none' }}>
             Läs recension
           </Link>
         </div>

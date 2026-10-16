@@ -50,7 +50,7 @@ const linkFields = [
     name: 'url',
     title: 'URL (custom / external)',
     type: 'string',
-    description: 'Only used if you don\'t select a reference above. E.g. /review/ or https://...',
+    description: 'Only used if you don\'t select a reference above. E.g. /online-casinos/recensioner/ or https://...',
   }),
 ]
 
@@ -88,7 +88,7 @@ const navItemFields = [
         },
         prepare({ title, pageRef, bookmakerRef, softwareRef, paymentMethodRef, postRef, url }: any) {
           const resolved = pageRef ? `/${pageRef}/`
-            : bookmakerRef ? `/review/${bookmakerRef}/`
+            : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
             : softwareRef ? `/software/${softwareRef}/`
             : paymentMethodRef ? `/online-casino/payment/${paymentMethodRef}/`
             : postRef ? `/${postRef}/`
@@ -174,7 +174,7 @@ export const siteSettingsType = defineType({
           },
           prepare({ title, isHighlighted, pageRef, bookmakerRef, softwareRef, paymentMethodRef, postRef, url, children }: any) {
             const resolvedUrl = pageRef ? `/${pageRef}/`
-              : bookmakerRef ? `/review/${bookmakerRef}/`
+              : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
               : softwareRef ? `/software/${softwareRef}/`
               : paymentMethodRef ? `/online-casino/payment/${paymentMethodRef}/`
               : postRef ? `/${postRef}/`
@@ -249,7 +249,7 @@ export const siteSettingsType = defineType({
                 },
                 prepare({ title, pageRef, bookmakerRef, softwareRef, paymentMethodRef, postRef, url }: any) {
                   const resolved = pageRef ? `/${pageRef}/`
-                    : bookmakerRef ? `/review/${bookmakerRef}/`
+                    : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
                     : softwareRef ? `/software/${softwareRef}/`
                     : paymentMethodRef ? `/online-casino/payment/${paymentMethodRef}/`
                     : postRef ? `/${postRef}/`

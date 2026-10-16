@@ -354,7 +354,7 @@ export default async function HomePage() {
                             }}>Registrera dig</a>
                           )}
                           {bm.slug?.current && (
-                            <a href={`/review/${bm.slug.current}/`} style={{
+                            <a href={`/online-casinos/recensioner/${bm.slug.current}/`} style={{
                               display: 'inline-block',
                               padding: '5px 10px',
                               border: '1px solid var(--green)',
@@ -430,7 +430,7 @@ export default async function HomePage() {
                             }}>Registrera dig</a>
                           )}
                           {bm.slug?.current && (
-                            <a href={`/review/${bm.slug.current}/`} style={{
+                            <a href={`/online-casinos/recensioner/${bm.slug.current}/`} style={{
                               display: 'inline-block',
                               padding: '5px 10px',
                               border: '1px solid var(--green)',
@@ -452,7 +452,7 @@ export default async function HomePage() {
 
               {/* View all reviews button */}
               <div style={{ textAlign: 'center', marginTop: '28px' }}>
-                <a href="/review/" style={{
+                <a href="/online-casinos/recensioner/" style={{
                   display: 'inline-block',
                   padding: '10px 28px',
                   border: '1px solid var(--border)',

@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Bookmaker review URLs ──────────────────────────────────────────────────────
   const bookmakerEntries: MetadataRoute.Sitemap = bookmakers.map((b) => ({
-    url: `${BASE}/review/${b.slug.current}/`,
+    url: `${BASE}/online-casinos/recensioner/${b.slug.current}/`,
     ...lastMod(b._updatedAt),
   }))
 
@@ -88,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     // ── Root index pages (no fake lastmod) ──
     { url: `${BASE}/` },
-    { url: `${BASE}/review/` },
+    { url: `${BASE}/online-casinos/recensioner/` },
     { url: `${BASE}/online-casino/payment/` },
     { url: `${BASE}/online-casino/software/` },
     { url: `${BASE}/casino-guides/` },

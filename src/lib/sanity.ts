@@ -719,7 +719,7 @@ export function relatedItemHref(item: RelatedItem): string {
     case 'bonus':
       return `/online-casino/bonus/${slug}/`
     case 'bookmaker':
-      return `/review/${slug}/`
+      return `/online-casinos/recensioner/${slug}/`
     case 'casinoGame':
       return `/casino-games/${slug}/`
     case 'post':

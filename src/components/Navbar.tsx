@@ -6,7 +6,7 @@ import { Icon } from './Icon'
 
 const DEFAULT_NAV = [
   { label: 'Hem',               url: '/',                       isHighlighted: false, children: [] },
-  { label: 'Casinorecensioner', url: '/review/',                isHighlighted: false, children: [] },
+  { label: 'Casinorecensioner', url: '/online-casinos/recensioner/',                isHighlighted: false, children: [] },
   { label: 'Bonusar',           url: '/online-casino/bonus/',   isHighlighted: false, children: [] },
   { label: 'Guider & Artiklar', url: '/blog/',                  isHighlighted: false, children: [] },
 ]
@@ -19,7 +19,7 @@ function resolveUrl(item: {
     const segments = [item.pageParent4Slug, item.pageParent3Slug, item.pageParent2Slug, item.pageParentSlug, item.pageSlug].filter(Boolean)
     return `/${segments.join('/')}/`
   }
-  if (item.bookmakerSlug) return `/review/${item.bookmakerSlug}/`
+  if (item.bookmakerSlug) return `/online-casinos/recensioner/${item.bookmakerSlug}/`
   if (item.softwareSlug) return `/online-casino/software/${item.softwareSlug}/`
   if (item.paymentMethodSlug) return `/online-casino/payment/${item.paymentMethodSlug}/`
   if (item.postSlug) return `/${item.postSlug}/`

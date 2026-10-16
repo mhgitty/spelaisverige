@@ -191,8 +191,8 @@ function RankCircle({ rank }: { rank: number }) {
 }
 
 function CasinoRow({ casino, currency, rank }: { casino: Casino; currency: string; rank: number }) {
-  // All casinos live under /review/.
-  const reviewHref = `/review/${casino.slug.current}/`
+  // All casinos live under /online-casinos/recensioner/.
+  const reviewHref = `/online-casinos/recensioner/${casino.slug.current}/`
   const hasStats = casino.minIndbetaling != null || !!casino.gennemspilskrav
   const terms = casino.terms || DEFAULT_TERMS
 
