@@ -27,7 +27,7 @@ function StatRow({ icon, label, value }: { icon: string; label: string; value?: 
 
 export function SoftwareProvidersGrid({
   providers,
-  hrefPrefix = '/online-casino/software',
+  hrefPrefix = '/online-casinos/speltillverkare',
 }: {
   providers: SoftwareProvider[]
   hrefPrefix?: string

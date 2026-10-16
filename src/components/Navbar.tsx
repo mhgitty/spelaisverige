@@ -20,8 +20,8 @@ function resolveUrl(item: {
     return `/${segments.join('/')}/`
   }
   if (item.bookmakerSlug) return `/online-casinos/recensioner/${item.bookmakerSlug}/`
-  if (item.softwareSlug) return `/online-casino/software/${item.softwareSlug}/`
-  if (item.paymentMethodSlug) return `/online-casino/payment/${item.paymentMethodSlug}/`
+  if (item.softwareSlug) return `/online-casinos/speltillverkare/${item.softwareSlug}/`
+  if (item.paymentMethodSlug) return `/online-casinos/betalningsmetoder/${item.paymentMethodSlug}/`
   if (item.postSlug) return `/${item.postSlug}/`
   if (item.casinoGuideSlug) return `/casino-guides/${item.casinoGuideSlug}/`
   return item.url || '/'

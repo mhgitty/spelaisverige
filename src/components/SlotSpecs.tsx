@@ -53,7 +53,7 @@ export function SlotSpecs({ slot, title = 'Viktiga funktioner & statistik' }: { 
 
   // Provider — reference; render as a link to the provider page when possible.
   if (slot.provider?.name) {
-    const href = slot.provider.slug ? `/online-casino/software/${slot.provider.slug}/` : null
+    const href = slot.provider.slug ? `/online-casinos/speltillverkare/${slot.provider.slug}/` : null
     stats.push({
       icon: 'provider',
       label: 'Leverantör',

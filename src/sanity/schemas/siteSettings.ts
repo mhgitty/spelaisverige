@@ -90,7 +90,7 @@ const navItemFields = [
           const resolved = pageRef ? `/${pageRef}/`
             : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
             : softwareRef ? `/software/${softwareRef}/`
-            : paymentMethodRef ? `/online-casino/payment/${paymentMethodRef}/`
+            : paymentMethodRef ? `/online-casinos/betalningsmetoder/${paymentMethodRef}/`
             : postRef ? `/${postRef}/`
             : url
           return { title, subtitle: resolved }
@@ -176,7 +176,7 @@ export const siteSettingsType = defineType({
             const resolvedUrl = pageRef ? `/${pageRef}/`
               : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
               : softwareRef ? `/software/${softwareRef}/`
-              : paymentMethodRef ? `/online-casino/payment/${paymentMethodRef}/`
+              : paymentMethodRef ? `/online-casinos/betalningsmetoder/${paymentMethodRef}/`
               : postRef ? `/${postRef}/`
               : url
             const hasChildren = children?.length > 0
@@ -251,7 +251,7 @@ export const siteSettingsType = defineType({
                   const resolved = pageRef ? `/${pageRef}/`
                     : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
                     : softwareRef ? `/software/${softwareRef}/`
-                    : paymentMethodRef ? `/online-casino/payment/${paymentMethodRef}/`
+                    : paymentMethodRef ? `/online-casinos/betalningsmetoder/${paymentMethodRef}/`
                     : postRef ? `/${postRef}/`
                     : url
                   return { title, subtitle: resolved }

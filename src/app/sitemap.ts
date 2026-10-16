@@ -63,13 +63,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Payment method URLs ───────────────────────────────────────────────────────
   const paymentEntries: MetadataRoute.Sitemap = paymentMethods.map((m) => ({
-    url: `${BASE}/online-casino/payment/${m.slug.current}/`,
+    url: `${BASE}/online-casinos/betalningsmetoder/${m.slug.current}/`,
     ...lastMod(m._updatedAt),
   }))
 
   // ── Software URLs ──────────────────────────────────────────────────────────────
   const softwareEntries: MetadataRoute.Sitemap = software.map((s) => ({
-    url: `${BASE}/online-casino/software/${s.slug.current}/`,
+    url: `${BASE}/online-casinos/speltillverkare/${s.slug.current}/`,
     ...lastMod(s._updatedAt),
   }))
 
@@ -89,8 +89,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // ── Root index pages (no fake lastmod) ──
     { url: `${BASE}/` },
     { url: `${BASE}/online-casinos/recensioner/` },
-    { url: `${BASE}/online-casino/payment/` },
-    { url: `${BASE}/online-casino/software/` },
+    { url: `${BASE}/online-casinos/betalningsmetoder/` },
+    { url: `${BASE}/online-casinos/speltillverkare/` },
     { url: `${BASE}/casino-guides/` },
     { url: `${BASE}/online-slots/` },
 

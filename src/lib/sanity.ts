@@ -461,7 +461,8 @@ export async function getPaymentMethodBySlug(slug: string) {
       "casinos": *[_type == "bookmaker" && references(^._id)] | order(score desc) {
         _id, name, slug, score, usp, url,
         "logo": logo { "url": asset->url, alt }
-      }
+      },
+      ${COMPARISON_TABLE_FRAGMENT}
     }`,
     { slug }
   )
@@ -713,9 +714,9 @@ export function relatedItemHref(item: RelatedItem): string {
     case 'slotmachine':
       return `/online-slots/${slug}/`
     case 'paymentMethod':
-      return `/online-casino/payment/${slug}/`
+      return `/online-casinos/betalningsmetoder/${slug}/`
     case 'software':
-      return `/online-casino/software/${slug}/`
+      return `/online-casinos/speltillverkare/${slug}/`
     case 'bonus':
       return `/online-casino/bonus/${slug}/`
     case 'bookmaker':

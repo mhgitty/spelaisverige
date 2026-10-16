@@ -56,12 +56,12 @@ export const previewAction: DocumentActionComponent = (
       url = slug ? `${BASE}/online-casino/bonus/${slug}/` : `${BASE}/online-casino/bonus/`
       break
     case 'paymentMethod':
-      url = slug ? `${BASE}/online-casino/payment/${slug}/` : `${BASE}/online-casino/payment/`
+      url = slug ? `${BASE}/online-casinos/betalningsmetoder/${slug}/` : `${BASE}/online-casinos/betalningsmetoder/`
       break
     case 'software':
       url = slug
-        ? `${BASE}/online-casino/software/${slug}/`
-        : `${BASE}/online-casino/software/`
+        ? `${BASE}/online-casinos/speltillverkare/${slug}/`
+        : `${BASE}/online-casinos/speltillverkare/`
       break
     case 'casinoGame':
       url = slug ? `${BASE}/casino-games/${slug}/` : `${BASE}/casino-games/`
