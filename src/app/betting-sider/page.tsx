@@ -47,7 +47,7 @@ export default async function BettingSiderPage() {
         '@id': `${CANONICAL}#webpage`,
         url: CANONICAL,
         name: page?.title || 'Casinorecensioner',
-        description: page?.intro || '',
+        description: replaceDateVars(page?.intro),
         inLanguage: 'sv-SE',
         publisher: { '@type': 'Organization', name: 'Spelaisverige', url: BASE },
       },

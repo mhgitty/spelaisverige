@@ -58,7 +58,7 @@ export default async function PaymentMethodsIndexPage() {
         '@id': `${CANONICAL}#webpage`,
         url: CANONICAL,
         name: page.title,
-        description: page.intro || '',
+        description: replaceDateVars(page.intro),
         inLanguage: 'sv-SE',
         publisher: { '@type': 'Organization', name: 'Spelaisverige', url: BASE },
       },

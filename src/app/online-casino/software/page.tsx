@@ -54,7 +54,7 @@ export default async function SoftwareIndexPage() {
         '@id': `${CANONICAL}#webpage`,
         url: CANONICAL,
         name: replaceDateVars(page.title),
-        description: page.intro || '',
+        description: replaceDateVars(page.intro),
         inLanguage: 'sv-SE',
         publisher: { '@type': 'Organization', name: 'Spelaisverige', url: BASE },
       },

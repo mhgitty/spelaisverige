@@ -72,7 +72,7 @@ export default async function DynamicPage({ params }: Props) {
         '@id': `${canonical}#webpage`,
         url: canonical,
         name: page.title,
-        description: page.intro || '',
+        description: replaceDateVars(page.intro),
         inLanguage: 'sv-SE',
         publisher: { '@type': 'Organization', name: 'Spelaisverige', url: BASE },
       },
