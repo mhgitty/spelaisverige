@@ -275,11 +275,32 @@ export async function getBookmakers() {
 export async function getBookmakerBySlug(slug: string) {
   return clientNoCdn.fetch(
     `*[_type == "bookmaker" && slug.current == $slug && (market == "global" || !defined(market))][0] {
-      _id, titel, name, slug, usp, score,
+      _id, _updatedAt, titel, name, slug, usp, score,
       indbetalingsbonus, minIndbetaling, gennemspilskrav,
-      url, terms, lanceringsdato, license, body,
+      url, terms, lanceringsdato, license,
+      "body": body[] {
+        ...,
+        _type == "casinoKortBlock" => {
+          ...,
+          "imageUrl": image.asset->url,
+          "bookmaker": bookmaker-> { name, score, url, "logoUrl": logo.asset->url, "logoAlt": logo.alt }
+        },
+        _type == "bonusKortBlock" => {
+          ...,
+          "imageUrl": image.asset->url,
+          "bonus": bonus-> {
+            "name": coalesce(bookmaker->name, casinoNavn, title),
+            "bonusText": coalesce(velkomstbonusTitel, oddsBonusTitel, indbetalingsbonusTitel, title),
+            "logoUrl": coalesce(casinoLogo.asset->url, bookmaker->logo.asset->url),
+            "logoAlt": coalesce(casinoLogo.alt, bookmaker->logo.alt),
+            "score": bookmaker->score, offerUrl, terms
+          }
+        }
+      },
       "logo": logo { "url": asset->url, alt },
       "ogImage": ogImage { "url": asset->url, alt },
+      "paymentMethods": paymentMethods[]-> { _id, name, "slug": slug.current, "logo": logo { "url": asset->url, alt } },
+      "software": software[]-> { _id, name, "slug": slug.current, "logo": logo { "url": asset->url, alt } },
       metaTitle, metaDescription
     }`,
     { slug }

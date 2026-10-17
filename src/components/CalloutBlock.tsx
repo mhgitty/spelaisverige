@@ -11,39 +11,28 @@ interface CalloutBlockProps {
   }
 }
 
-const styles: Record<string, { bg: string; border: string; icon: string; color: string }> = {
-  info:    { bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.25)', icon: 'ℹ️', color: '#60a5fa' },
-  tip:     { bg: 'rgba(255,205,0,0.12)',  border: 'rgba(255,205,0,0.35)',  icon: '💡', color: '#A77E00' },
-  warning: { bg: 'rgba(234,179,8,0.1)',  border: 'rgba(234,179,8,0.25)',  icon: '⚠️', color: '#fbbf24' },
-  quote:   { bg: 'var(--bg-raised)',     border: 'var(--border)',         icon: '',   color: 'var(--text)' },
-}
-
 const richTextComponents = {
   block: {
     normal: ({ children }: any) => (
-      <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.65, margin: '0 0 8px' }}>{children}</p>
+      <p style={{ fontSize: '14.5px', color: 'var(--text-muted)', lineHeight: 1.7, margin: '0 0 8px' }}>{children}</p>
     ),
   },
   list: {
-    bullet: ({ children }: any) => (
-      <ul style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.65, margin: '0 0 8px', paddingLeft: '20px' }}>{children}</ul>
-    ),
-    number: ({ children }: any) => (
-      <ol style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.65, margin: '0 0 8px', paddingLeft: '20px' }}>{children}</ol>
-    ),
+    bullet: ({ children }: any) => <ul className="sv-ul" style={{ margin: '6px 0 8px' }}>{children}</ul>,
+    number: ({ children }: any) => <ol className="sv-ol" style={{ margin: '6px 0 8px' }}>{children}</ol>,
   },
   listItem: {
-    bullet: ({ children }: any) => <li style={{ marginBottom: '4px' }}>{children}</li>,
-    number: ({ children }: any) => <li style={{ marginBottom: '4px' }}>{children}</li>,
+    bullet: ({ children }: any) => <li style={{ fontSize: '14.5px' }}>{children}</li>,
+    number: ({ children }: any) => <li style={{ fontSize: '14.5px' }}>{children}</li>,
   },
   marks: {
-    strong: ({ children }: any) => <strong style={{ fontWeight: 600, color: 'var(--text)' }}>{children}</strong>,
+    strong: ({ children }: any) => <strong style={{ fontWeight: 700, color: 'var(--text)' }}>{children}</strong>,
     em: ({ children }: any) => <em>{children}</em>,
     link: ({ value, children }: any) => {
       const relParts = ['noopener', 'noreferrer', value?.nofollow ? 'nofollow' : ''].filter(Boolean)
       return (
         <a href={value?.href} target={value?.blank ? '_blank' : undefined} rel={relParts.join(' ')}
-          style={{ color: 'inherit', textDecoration: 'underline' }}>
+          style={{ color: 'var(--green)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
           {children}
         </a>
       )
@@ -51,80 +40,71 @@ const richTextComponents = {
   },
 }
 
+const svg = (d: React.ReactNode) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>
+)
+const ICONS = {
+  info: svg(<><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>),
+  tip: svg(<><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2V16h5v-.2c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3z" /></>),
+  warning: svg(<><path d="M10.3 3.9L2 18a2 2 0 0 0 1.7 3h16.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /><path d="M12 9v4M12 17h.01" /></>),
+}
+
+function Body({ body }: { body?: any[] | string }) {
+  if (!body) return null
+  return Array.isArray(body)
+    ? <PortableText value={body} components={richTextComponents} />
+    : <p style={{ fontSize: '14.5px', color: 'var(--text-muted)', lineHeight: 1.7, margin: 0 }}>{body}</p>
+}
+
+function Person({ person, className }: { person: any; className: string }) {
+  if (!person?.name) return null
+  return (
+    <div className={className}>
+      {person.imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={person.imageUrl} alt={person.name} loading="lazy" />
+      )}
+      <div style={{ lineHeight: 1.3 }}>
+        {person.slug?.current
+          ? <Link href={`/author/${person.slug.current}/`} style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }}>{person.name}</Link>
+          : <strong style={{ fontSize: '13.5px', color: 'var(--text)' }}>{person.name}</strong>}
+        {person.role && <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)' }}>{person.role}</span>}
+      </div>
+    </div>
+  )
+}
+
 export async function CalloutBlock({ value }: CalloutBlockProps) {
   const { variant = 'info', title, body, author } = value
-  const s = styles[variant] ?? styles.info
-  const isQuote = variant === 'quote'
 
   // Resolve the credited author (optional) at render time.
   let person = null
   if (author?._ref) {
-    try {
-      person = await getAuthorById(author._ref)
-    } catch {
-      person = null
-    }
+    try { person = await getAuthorById(author._ref) } catch { person = null }
   }
 
-  return (
-    <div
-      style={{
-        background: s.bg,
-        border: `1px solid ${s.border}`,
-        borderLeft: isQuote ? '4px solid var(--green)' : `1px solid ${s.border}`,
-        borderRadius: '8px',
-        padding: '16px 20px',
-        margin: '24px 0',
-      }}
-    >
-      {title && (
-        <div style={{ fontWeight: 600, color: s.color, fontSize: isQuote ? '16px' : '14.5px', marginBottom: '8px' }}>
-          {s.icon ? `${s.icon} ` : ''}{title}
-        </div>
-      )}
-      {body && (
-        <div style={{ lineHeight: 1.65 }}>
-          {Array.isArray(body)
-            ? <PortableText value={body} components={richTextComponents} />
-            : <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.65, margin: 0 }}>{body}</p>
-          }
-        </div>
-      )}
+  // Quote variant — navy quote card (same style as blockquotes in body text).
+  if (variant === 'quote') {
+    return (
+      <figure className="sv-quote">
+        <span className="sv-quote-mark" aria-hidden="true">&ldquo;</span>
+        {title && <div className="sv-quote-title">{title}</div>}
+        <div className="sv-quote-text"><Body body={body} /></div>
+        <Person person={person} className="sv-quote-by" />
+      </figure>
+    )
+  }
 
-      {person?.name && (
-        <div
-          style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            marginTop: '14px', paddingTop: '12px',
-            borderTop: `1px solid ${s.border}`,
-          }}
-        >
-          {person.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={person.imageUrl}
-              alt={person.name}
-              loading="lazy"
-              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-            />
-          )}
-          <div style={{ lineHeight: 1.3 }}>
-            {person.slug?.current ? (
-              <Link
-                href={`/author/${person.slug.current}/`}
-                style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }}
-              >
-                {person.name}
-              </Link>
-            ) : (
-              <span style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text)' }}>{person.name}</span>
-            )}
-            {person.role && (
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{person.role}</div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+  const kind = (['info', 'tip', 'warning'] as const).includes(variant as any) ? (variant as 'info' | 'tip' | 'warning') : 'info'
+
+  return (
+    <aside className={`sv-callout sv-callout--${kind}`}>
+      <span className="sv-callout-icon">{ICONS[kind]}</span>
+      <div style={{ minWidth: 0 }}>
+        {title && <div className="sv-callout-title">{title}</div>}
+        <div className="sv-callout-body" style={!title ? { marginTop: '10px' } : undefined}><Body body={body} /></div>
+        <Person person={person} className="sv-callout-by" />
+      </div>
+    </aside>
   )
 }
