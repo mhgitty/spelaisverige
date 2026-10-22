@@ -12,6 +12,7 @@ import { notFound } from 'next/navigation'
 import { AuthorBio } from '@/components/AuthorBio'
 import { ReviewHero } from '@/components/ReviewHero'
 import { heroButtonsFor } from '@/lib/heroButtons'
+import { convertOpinion } from '@/lib/authorOpinion'
 import { RelatedPages } from '@/components/RelatedPages'
 import type { Metadata } from 'next'
 
@@ -59,6 +60,9 @@ export default async function ReviewPage({ params }: Props) {
     getSiteSettings().catch(() => null),
   ])
   if (!bm) notFound()
+  // Show the reviewer's opinion section as the Author opinion block (even before the doc is re-saved).
+  const convertedBody = convertOpinion(bm.body)
+  if (convertedBody) bm.body = convertedBody
   const hreflangScript = await getHreflangScript(bm._id).catch(() => null)
   const author = settings?.defaultAuthor ?? null
 

@@ -1,5 +1,6 @@
 import { createClient } from '@sanity/client'
 import { NextResponse, type NextRequest } from 'next/server'
+import { convertOpinion } from '@/lib/authorOpinion'
 
 // Fixes documents written by the Make automations that occasionally wrap their
 // Portable Text output in a container object like { "p1blocks": [ ...blocks ] }.
@@ -57,6 +58,17 @@ async function normalizeDoc(id: string) {
       report[field] = `flattened to ${out.length} blocks`
     } else if (changed && bad > 0) {
       report[field] = `skipped — ${bad} blocks still missing _type/_key`
+    }
+  }
+
+  // Casino reviews: turn the author's opinion section (an H3 like "Hugos dom om X"
+  // + its paragraphs) into an authorOpinionBlock.
+  if (doc._type === 'bookmaker') {
+    const src: Block[] = patch.body ?? (Array.isArray(doc.body) ? doc.body : [])
+    const converted = convertOpinion(src)
+    if (converted) {
+      patch.body = converted as Block[]
+      report.opinion = 'converted author opinion section to block'
     }
   }
   if (Object.keys(patch).length === 0) return NextResponse.json({ ok: true, id, changed: false })
