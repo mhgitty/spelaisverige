@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { client } from '@/lib/sanity'
 
-export const revalidate = 86400
+export const revalidate = 3600
 
 const BASE = 'https://spelaisverige.com'
 

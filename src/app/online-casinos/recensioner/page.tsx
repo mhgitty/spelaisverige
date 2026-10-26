@@ -14,7 +14,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 const BASE = 'https://spelaisverige.com'
 const CANONICAL = `${BASE}/online-casinos/recensioner/`

@@ -6,7 +6,7 @@ import { SlotsArchive } from '@/components/SlotsArchive'
 import { getSlotmachinesForArchive, getArchiveFeaturedSlotIds, getPageByPath, getSiteSettings, getHreflangScript } from '@/lib/sanity'
 import type { Metadata } from 'next'
 
-export const revalidate = 3600
+export const revalidate = 300
 const BASE = 'https://spelaisverige.com'
 const PATH = '/online-slots'
 const HOME = '/'

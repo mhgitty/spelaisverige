@@ -16,7 +16,7 @@ import { convertOpinion } from '@/lib/authorOpinion'
 import { RelatedPages } from '@/components/RelatedPages'
 import type { Metadata } from 'next'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 const BASE = 'https://spelaisverige.com'
 

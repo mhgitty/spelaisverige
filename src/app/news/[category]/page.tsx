@@ -6,7 +6,7 @@ import { Footer } from '@/components/Footer'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 const BASE = 'https://spelaisverige.com'
 

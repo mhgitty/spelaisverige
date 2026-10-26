@@ -9,7 +9,7 @@ import { HreflangHead } from '@/components/HreflangHead'
 import { replaceDateVars } from '@/lib/dateVars'
 import type { Metadata } from 'next'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 const BASE = 'https://spelaisverige.com'
 

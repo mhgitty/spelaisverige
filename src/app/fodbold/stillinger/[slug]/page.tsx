@@ -11,7 +11,7 @@ import { replaceDateVars } from '@/lib/dateVars'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 const BASE = 'https://spelaisverige.com'
 const SM_BASE = 'https://api.sportmonks.com/v3/football'
@@ -64,7 +64,7 @@ async function fetchStandings(leagueId: number, seasonId?: number | null): Promi
       // Strategy 1: league include=currentSeason
       const leagueRes = await fetch(
         `${SM_BASE}/leagues/${leagueId}?api_token=${token}&include=currentSeason`,
-        { next: { revalidate: 3600 } }
+        { next: { revalidate: 300 } }
       )
       if (leagueRes.ok) {
         const leagueData = await leagueRes.json()
@@ -76,7 +76,7 @@ async function fetchStandings(leagueId: number, seasonId?: number | null): Promi
         console.log('[LigaStillinger] Falling back to seasons endpoint for league', leagueId)
         const seasonsRes = await fetch(
           `${SM_BASE}/seasons?api_token=${token}&filters=leagueId:${leagueId}&order=starting_at:desc&per_page=5`,
-          { next: { revalidate: 3600 } }
+          { next: { revalidate: 300 } }
         )
         if (seasonsRes.ok) {
           const seasonsData = await seasonsRes.json()
@@ -95,7 +95,7 @@ async function fetchStandings(leagueId: number, seasonId?: number | null): Promi
 
     // Fetch standings — include participant + details for stats
     const url = `${SM_BASE}/standings/seasons/${resolvedSeasonId}?api_token=${token}&include=participant;details`
-    const res = await fetch(url, { next: { revalidate: 3600 } })
+    const res = await fetch(url, { next: { revalidate: 300 } })
     if (!res.ok) {
       console.error('[LigaStillinger] Standings fetch failed:', res.status)
       return []

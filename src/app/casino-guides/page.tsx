@@ -15,7 +15,7 @@ import { heroButtonsFor } from '@/lib/heroButtons'
 import type { Metadata } from 'next'
 import { RelatedPages } from '@/components/RelatedPages'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 const BASE = 'https://spelaisverige.com'
 const CANONICAL = `${BASE}/casino-guides/`

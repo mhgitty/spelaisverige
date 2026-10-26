@@ -411,7 +411,7 @@ export const getSiteSettings = cache(async () => {
       }
     }`,
     {},
-    { next: { revalidate: 3600 } }
+    { next: { revalidate: 300 } }
   )
 })
 
