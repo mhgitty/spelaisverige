@@ -54,8 +54,54 @@ const linkFields = [
   }),
 ]
 
-// ── Sub-menu item ─────────────────────────────────────────────────────────────
-const subNavItemFields = [...linkFields]
+// ── Shared preview for every menu link (shows the URL it resolves to) ────────
+const linkPreview = {
+  select: {
+    title: 'label',
+    pageRef: 'pageRef.slug.current',
+    bookmakerRef: 'bookmakerRef.slug.current',
+    softwareRef: 'softwareRef.slug.current',
+    paymentMethodRef: 'paymentMethodRef.slug.current',
+    postRef: 'postRef.slug.current',
+    casinoGuideRef: 'casinoGuideRef.slug.current',
+    url: 'url',
+  },
+  prepare({ title, pageRef, bookmakerRef, softwareRef, paymentMethodRef, postRef, casinoGuideRef, url }: any) {
+    const resolved = pageRef ? `/${pageRef}/`
+      : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
+      : softwareRef ? `/online-casinos/speltillverkare/${softwareRef}/`
+      : paymentMethodRef ? `/online-casinos/betalningsmetoder/${paymentMethodRef}/`
+      : postRef ? `/${postRef}/`
+      : casinoGuideRef ? `/casino-guides/${casinoGuideRef}/`
+      : url
+    return { title, subtitle: resolved }
+  },
+}
+
+// ── Menu levels: top item → dropdown (2nd) → flyout (3rd) → flyout (4th) ─────
+const level4ItemFields = [...linkFields]
+
+const level3ItemFields = [
+  ...linkFields,
+  defineField({
+    name: 'children',
+    title: 'Sub-menu (4th level)',
+    type: 'array',
+    description: 'Optional — opens as a flyout to the side',
+    of: [{ type: 'object', name: 'subSubSubNavItem', fields: level4ItemFields, preview: linkPreview }],
+  }),
+]
+
+const subNavItemFields = [
+  ...linkFields,
+  defineField({
+    name: 'children',
+    title: 'Sub-menu (3rd level)',
+    type: 'array',
+    description: 'Optional — opens as a flyout to the side',
+    of: [{ type: 'object', name: 'subSubNavItem', fields: level3ItemFields, preview: linkPreview }],
+  }),
+]
 
 // ── Top-level nav item ─────────────────────────────────────────────────────────
 const navItemFields = [
@@ -64,39 +110,15 @@ const navItemFields = [
     name: 'icon',
     title: 'Icon',
     type: 'string',
-    description: 'Solar icon name — renders in green duotone. Good picks: gift, crown, star, diamond, cup-star, shield-star, card, wallet, book-2, chart-2, joystick, cpu. Browse all at icon-sets.iconify.design/solar',
+    description: 'Solar icon name — renders in duotone. Good picks: gift, crown, star, diamond, cup-star, shield-star, card, wallet, book-2, chart-2, joystick, cpu. Browse all at icon-sets.iconify.design/solar',
   }),
   defineField({ name: 'isHighlighted', title: 'Highlighted (CTA button)', type: 'boolean', initialValue: false }),
   defineField({
     name: 'children',
-    title: 'Dropdown',
+    title: 'Dropdown (2nd level)',
     type: 'array',
-    description: 'Add sub-items to create a dropdown menu',
-    of: [{
-      type: 'object',
-      name: 'subNavItem',
-      fields: subNavItemFields,
-      preview: {
-        select: {
-          title: 'label',
-          pageRef: 'pageRef.slug.current',
-          bookmakerRef: 'bookmakerRef.slug.current',
-          softwareRef: 'softwareRef.slug.current',
-          paymentMethodRef: 'paymentMethodRef.slug.current',
-          postRef: 'postRef.slug.current',
-          url: 'url',
-        },
-        prepare({ title, pageRef, bookmakerRef, softwareRef, paymentMethodRef, postRef, url }: any) {
-          const resolved = pageRef ? `/${pageRef}/`
-            : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
-            : softwareRef ? `/software/${softwareRef}/`
-            : paymentMethodRef ? `/online-casinos/betalningsmetoder/${paymentMethodRef}/`
-            : postRef ? `/${postRef}/`
-            : url
-          return { title, subtitle: resolved }
-        },
-      },
-    }],
+    description: 'Add sub-items to create a dropdown menu. Each sub-item can have its own sub-menu.',
+    of: [{ type: 'object', name: 'subNavItem', fields: subNavItemFields, preview: linkPreview }],
   }),
 ]
 
@@ -169,16 +191,12 @@ export const siteSettingsType = defineType({
             softwareRef: 'softwareRef.slug.current',
             paymentMethodRef: 'paymentMethodRef.slug.current',
             postRef: 'postRef.slug.current',
+            casinoGuideRef: 'casinoGuideRef.slug.current',
             url: 'url',
             children: 'children',
           },
-          prepare({ title, isHighlighted, pageRef, bookmakerRef, softwareRef, paymentMethodRef, postRef, url, children }: any) {
-            const resolvedUrl = pageRef ? `/${pageRef}/`
-              : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
-              : softwareRef ? `/software/${softwareRef}/`
-              : paymentMethodRef ? `/online-casinos/betalningsmetoder/${paymentMethodRef}/`
-              : postRef ? `/${postRef}/`
-              : url
+          prepare({ title, isHighlighted, children, ...refs }: any) {
+            const resolvedUrl = linkPreview.prepare({ title, ...refs }).subtitle
             const hasChildren = children?.length > 0
             return {
               title: `${isHighlighted ? '⚡ ' : ''}${hasChildren ? '▾ ' : ''}${title}`,
@@ -250,7 +268,7 @@ export const siteSettingsType = defineType({
                 prepare({ title, pageRef, bookmakerRef, softwareRef, paymentMethodRef, postRef, url }: any) {
                   const resolved = pageRef ? `/${pageRef}/`
                     : bookmakerRef ? `/online-casinos/recensioner/${bookmakerRef}/`
-                    : softwareRef ? `/software/${softwareRef}/`
+                    : softwareRef ? `/online-casinos/speltillverkare/${softwareRef}/`
                     : paymentMethodRef ? `/online-casinos/betalningsmetoder/${paymentMethodRef}/`
                     : postRef ? `/${postRef}/`
                     : url

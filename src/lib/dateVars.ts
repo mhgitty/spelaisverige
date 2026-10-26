@@ -1,10 +1,10 @@
-const MONTHS_DA = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+const MONTHS_SV = [
+  'januari', 'februari', 'mars', 'april', 'maj', 'juni',
+  'juli', 'augusti', 'september', 'oktober', 'november', 'december',
 ]
 
 /**
- * Replace [year], [month], [date] tokens with current Danish date values.
+ * Replace [year]/[år], [month]/[månad], [date]/[datum] tokens with current Swedish date values.
  * Safe to call with null/undefined — returns the input unchanged.
  */
 export function replaceDateVars(input: string | any[] | null | undefined): string {
@@ -25,10 +25,13 @@ export function replaceDateVars(input: string | any[] | null | undefined): strin
   if (!str) return ''
   const now = new Date()
   const year  = now.getFullYear().toString()
-  const month = MONTHS_DA[now.getMonth()]
+  const month = MONTHS_SV[now.getMonth()]
   const date  = now.getDate().toString()
   return str
     .replace(/\[year\]/gi,         year)
+    .replace(/\[år\]/gi,           year)
+    .replace(/\[månad\]/gi,        month)
+    .replace(/\[datum\]/gi,        date)
     .replace(/%%currentyear%%/gi,  year)
     .replace(/\[month\]/gi,        month)
     .replace(/%%currentmonth%%/gi, month)
