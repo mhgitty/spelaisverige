@@ -40,8 +40,13 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large', 'max-video-preview': -1 },
   },
   icons: {
-    icon: [{ url: '/favicon.webp', type: 'image/webp' }],
-    apple: '/favicon.webp',
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/favicon.webp', type: 'image/webp', sizes: '500x500' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
 }
 
