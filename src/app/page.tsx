@@ -2,9 +2,8 @@ import Image from 'next/image'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { JsonLd } from '@/components/JsonLd'
-import { Icon } from '@/components/Icon'
 import { RichIntro } from '@/components/RichIntro'
-import { getPosts, getHomepage, getBookmakers, getHreflangScript } from '@/lib/sanity'
+import { getPosts, getHomepage, getHreflangScript } from '@/lib/sanity'
 import { HreflangHead } from '@/components/HreflangHead'
 import { replaceDateVars } from '@/lib/dateVars'
 import { heroButtonsFor } from '@/lib/heroButtons'
@@ -32,10 +31,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [posts, hp, bookmakers] = await Promise.all([
+  const [posts, hp] = await Promise.all([
     getPosts(20).catch(() => []),
     getHomepage().catch(() => null),
-    getBookmakers().catch(() => []),
   ])
 
   const hasBody = Array.isArray(hp?.body) && hp.body.length > 0
@@ -45,17 +43,8 @@ export default async function HomePage() {
   const heroIntro = hp?.intro ?? 'Vi jämför och recenserar alla de bästa onlinecasinona. Hitta den bästa välkomstbonusen och kom igång idag.'
 
   const latestSectionTitle   = hp?.latestSectionTitle   || 'Senaste'
-  const casinoReviewsTitle   = hp?.casinoReviewsTitle   || 'Bästa casinorecensioner'
-  const topRatedTitle        = hp?.topRatedTitle        || 'Högst rankade casinon'
   const featuredSectionTitle = hp?.featuredSectionTitle || 'Utvalda'
 
-  const trustItems: { _key: string; icon?: string; title: string; body: string }[] = hp?.trustItems?.length > 0
-    ? hp.trustItems
-    : [
-        { _key: 'trust-1', icon: 'cup-star',           title: 'Betrodd av varumärken & spelare',    body: 'Operatörer, spelutvecklare, spelare, stora medier och många nyckelpersoner rekommenderar Spelaisverige som sitt förstahandsval.' },
-        { _key: 'trust-2', icon: 'medal-ribbons-star',  title: 'Branschledande',               body: 'Den enda plattformen för nyheter, recensioner och rankning av detta slag i världen med över ett decennium av erfarenhet.' },
-        { _key: 'trust-3', icon: 'scale',               title: 'Oberoende & transparent',      body: 'Helägt, inga externa investerare eller påverkan. Vi anlitar oberoende journalister från hela världen.' },
-      ]
 
   const faqs = (hp?.body ?? [])
     .filter((b: any) => b._type === 'faqBlock')
@@ -93,7 +82,6 @@ export default async function HomePage() {
   const hreflangScript = await getHreflangScript('homepage').catch(() => null)
 
   const postList = posts as any[]
-  const topBookmakers = (bookmakers as any[]).slice(0, 4)
 
   // Group posts by category for Featured section
   const categoryMap: Record<string, { name: string; slug: string; posts: any[] }> = {}
@@ -338,193 +326,6 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* ── 2. CASINO RANKINGS SECTION ──────────────────────────────────── */}
-        {topBookmakers.length > 0 && (
-          <section style={{ marginTop: '48px' }}>
-            <div style={{
-              border: '1px solid var(--border)',
-              borderRadius: '12px',
-              background: 'var(--bg-card)',
-              padding: '28px',
-            }}>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '32px',
-              }}
-                className="rankings-grid"
-              >
-                {/* Table 1 */}
-                <div>
-                  <h2 style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '18px',
-                    fontWeight: 700,
-                    color: 'var(--text)',
-                    marginBottom: '16px',
-                  }}>{casinoReviewsTitle}</h2>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {topBookmakers.map((bm: any, i: number) => (
-                      <div key={bm._id} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '10px 14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: '8px',
-                        background: 'var(--bg)',
-                      }}>
-                        <span style={{
-                          fontFamily: 'var(--font-display)',
-                          fontWeight: 700,
-                          fontSize: '16px',
-                          color: 'var(--text-muted, #888)',
-                          minWidth: '20px',
-                          textAlign: 'center',
-                        }}>{i + 1}</span>
-                        {bm.logo?.url ? (
-                          <div style={{ position: 'relative', width: '48px', height: '32px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
-                            <Image
-                              src={bm.logo.url}
-                              alt={bm.logo.alt ?? bm.name ?? ''}
-                              fill
-                              style={{ objectFit: 'contain' }}
-                              sizes="48px"
-                            />
-                          </div>
-                        ) : (
-                          <div style={{ width: '48px', height: '32px', background: 'var(--border)', borderRadius: '4px', flexShrink: 0 }} />
-                        )}
-                        <span style={{ flex: 1, fontSize: '12px', fontWeight: 600, color: 'var(--text)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px' }}>{bm.name}</span>
-                        <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                          {bm.url && (
-                            <a href={bm.url} target="_blank" rel="nofollow noopener noreferrer sponsored" style={{
-                              display: 'inline-block',
-                              padding: '5px 10px',
-                              background: 'var(--green)',
-                              color: '#fff',
-                              fontSize: '11px',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              textDecoration: 'none',
-                              whiteSpace: 'nowrap',
-                            }}>Registrera dig</a>
-                          )}
-                          {bm.slug?.current && (
-                            <a href={`/online-casinos/recensioner/${bm.slug.current}/`} style={{
-                              display: 'inline-block',
-                              padding: '5px 10px',
-                              border: '1px solid var(--green)',
-                              color: 'var(--green)',
-                              fontSize: '11px',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              textDecoration: 'none',
-                              whiteSpace: 'nowrap',
-                              background: 'transparent',
-                            }}>Recension</a>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Table 2 */}
-                <div>
-                  <h2 style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '18px',
-                    fontWeight: 700,
-                    color: 'var(--text)',
-                    marginBottom: '16px',
-                  }}>{topRatedTitle}</h2>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {topBookmakers.map((bm: any, i: number) => (
-                      <div key={bm._id + '-2'} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '10px 14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: '8px',
-                        background: 'var(--bg)',
-                      }}>
-                        <span style={{
-                          fontFamily: 'var(--font-display)',
-                          fontWeight: 700,
-                          fontSize: '16px',
-                          color: 'var(--text-muted, #888)',
-                          minWidth: '20px',
-                          textAlign: 'center',
-                        }}>{i + 1}</span>
-                        {bm.logo?.url ? (
-                          <div style={{ position: 'relative', width: '48px', height: '32px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
-                            <Image
-                              src={bm.logo.url}
-                              alt={bm.logo.alt ?? bm.name ?? ''}
-                              fill
-                              style={{ objectFit: 'contain' }}
-                              sizes="48px"
-                            />
-                          </div>
-                        ) : (
-                          <div style={{ width: '48px', height: '32px', background: 'var(--border)', borderRadius: '4px', flexShrink: 0 }} />
-                        )}
-                        <span style={{ flex: 1, fontSize: '12px', fontWeight: 600, color: 'var(--text)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px' }}>{bm.name}</span>
-                        <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                          {bm.url && (
-                            <a href={bm.url} target="_blank" rel="nofollow noopener noreferrer sponsored" style={{
-                              display: 'inline-block',
-                              padding: '5px 10px',
-                              background: 'var(--green)',
-                              color: '#fff',
-                              fontSize: '11px',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              textDecoration: 'none',
-                              whiteSpace: 'nowrap',
-                            }}>Registrera dig</a>
-                          )}
-                          {bm.slug?.current && (
-                            <a href={`/online-casinos/recensioner/${bm.slug.current}/`} style={{
-                              display: 'inline-block',
-                              padding: '5px 10px',
-                              border: '1px solid var(--green)',
-                              color: 'var(--green)',
-                              fontSize: '11px',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              textDecoration: 'none',
-                              whiteSpace: 'nowrap',
-                              background: 'transparent',
-                            }}>Recension</a>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* View all reviews button */}
-              <div style={{ textAlign: 'center', marginTop: '28px' }}>
-                <a href="/online-casinos/recensioner/" style={{
-                  display: 'inline-block',
-                  padding: '10px 28px',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: 'var(--text)',
-                  textDecoration: 'none',
-                  background: 'transparent',
-                }}>Visa alla casinorecensioner</a>
-              </div>
-            </div>
-          </section>
-        )}
-
         {/* ── 3. FEATURED BY CATEGORY ─────────────────────────────────────── */}
         {featuredCategories.length > 0 && (
           <section style={{ marginTop: '48px' }}>
@@ -600,43 +401,6 @@ export default async function HomePage() {
           </section>
         )}
 
-
-        {/* ── 4. TRUST SECTION ────────────────────────────────────────────── */}
-        <section style={{ marginTop: '48px', marginBottom: '64px' }}>
-          <div style={{
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
-            background: 'var(--bg-card)',
-            padding: '36px 28px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '28px',
-          }}
-            className="trust-grid"
-          >
-            {trustItems.map((item, i) => (
-              <div key={item._key} style={{
-                textAlign: 'center',
-                padding: '0 8px',
-                ...(i === 1 ? { borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)' } : {}),
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
-                  <Icon name={item.icon || 'shield-check'} size={36} color="var(--green)" />
-                </div>
-                <h3 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  color: 'var(--text)',
-                  marginBottom: '10px',
-                }}>{item.title}</h3>
-                <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', lineHeight: 1.65, margin: 0 }}>
-                  {item.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
 
       </div>
 
