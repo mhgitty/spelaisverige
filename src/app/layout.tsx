@@ -1,16 +1,20 @@
 import type { Metadata } from 'next'
-import { Figtree } from 'next/font/google'
+import localFont from 'next/font/local'
 import { draftMode } from 'next/headers'
 import { AdminBar } from '@/components/AdminBar'
 import { PreviewBanner } from '@/components/PreviewBanner'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
 import './globals.css'
 
-const figtree = Figtree({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+// Self-hosted Figtree (variable weight 300–900, Latin incl. å ä ö). Avoids
+// fetching from Google Fonts at build time, which fails intermittently.
+const figtree = localFont({
+  src: [
+    { path: './fonts/figtree-latin-wght-normal.woff2', weight: '300 900', style: 'normal' },
+  ],
   variable: '--font-figtree',
   display: 'swap',
+  fallback: ['system-ui', 'Segoe UI', 'Arial', 'sans-serif'],
 })
 
 const BASE = 'https://spelaisverige.com'
