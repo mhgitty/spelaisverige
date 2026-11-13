@@ -7,6 +7,11 @@ import { RichIntro } from '@/components/RichIntro'
 import { getPosts, getHomepage, getBookmakers, getHreflangScript } from '@/lib/sanity'
 import { HreflangHead } from '@/components/HreflangHead'
 import { replaceDateVars } from '@/lib/dateVars'
+import { heroButtonsFor } from '@/lib/heroButtons'
+import { ComparisonTable } from '@/components/ComparisonTable'
+import { PortableTextRenderer } from '@/components/PortableTextRenderer'
+import { TableOfContents } from '@/components/TableOfContents'
+import { MobileToc } from '@/components/MobileToc'
 import type { Metadata } from 'next'
 
 export const revalidate = 300
@@ -32,6 +37,9 @@ export default async function HomePage() {
     getHomepage().catch(() => null),
     getBookmakers().catch(() => []),
   ])
+
+  const hasBody = Array.isArray(hp?.body) && hp.body.length > 0
+  const heroButtons = heroButtonsFor(hp)
 
   const heroHeading = replaceDateVars(hp?.heroHeading || 'Hitta de bästa onlinecasinobonusarna')
   const heroIntro = hp?.intro ?? 'Vi jämför och recenserar alla de bästa onlinecasinona. Hitta den bästa välkomstbonusen och kom igång idag.'
@@ -123,8 +131,57 @@ export default async function HomePage() {
           <p className="hero-subtext">
             {typeof heroIntro === 'string' ? replaceDateVars(heroIntro) : <RichIntro value={heroIntro} />}
           </p>
+          {heroButtons.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: '8px' }}>
+                Snabblänkar
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {heroButtons.map((b) => {
+                  const outline = b.variant === 'outline'
+                  return (
+                    <a key={b.targetId} href={`#${b.targetId}`} className="hero-compare-btn" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '7px',
+                      background: outline ? 'transparent' : 'var(--green)', color: outline ? 'var(--green)' : '#fff',
+                      border: '1.5px solid var(--green)', fontSize: '14.5px', fontWeight: 700,
+                      padding: '10.5px 18px', borderRadius: '10px', textDecoration: 'none',
+                      boxShadow: outline ? 'none' : '0 4px 14px rgba(28,127,192,0.28)',
+                    }}>
+                      {replaceDateVars(b.text)}
+                      <span aria-hidden="true" style={{ fontSize: '16px', lineHeight: 1 }}>↓</span>
+                    </a>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </section>
+
+      {/* Comparison list — configured on the Homepage document in Sanity */}
+      {hp?.showComparisonTable && hp?.comparisonTable && (
+        <div className="section" style={{ paddingBottom: hasBody ? '0' : undefined }}>
+          {hp.comparisonTableTitle && (
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 700, color: 'var(--text)', marginBottom: '20px' }}>
+              {replaceDateVars(hp.comparisonTableTitle)}
+            </h2>
+          )}
+          <ComparisonTable data={hp.comparisonTable} />
+        </div>
+      )}
+
+      {/* Body content ("Content" field on the Homepage document) */}
+      {hasBody && (
+        <div className="article-layout">
+          <article className="article-content">
+            <MobileToc body={hp.body} />
+            <PortableTextRenderer value={hp.body} posts={posts as any} />
+          </article>
+          <aside className="toc-sidebar">
+            <TableOfContents body={hp.body} />
+          </aside>
+        </div>
+      )}
 
       <div style={{ maxWidth: '1250px', margin: '0 auto', padding: '0 15px' }}>
 
