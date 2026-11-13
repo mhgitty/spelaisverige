@@ -7,8 +7,8 @@ import { Button, Dialog, TextArea, Stack, Text, Box, Card } from '@sanity/ui'
 type Result = { pros: string[]; cons: string[] }
 
 // Heading words that switch which bucket following lines go into.
-const PRO_WORDS = /^(pros?|advantages?|positives?|fordele|plusser)$/i
-const CON_WORDS = /^(cons?|disadvantages?|negatives?|ulemper|minusser)$/i
+const PRO_WORDS = /^(pros?|advantages?|positives?|fordele|plusser|fördelar|fordelar|plus|styrkor|positivt)$/i
+const CON_WORDS = /^(cons?|disadvantages?|negatives?|ulemper|minusser|nackdelar|minus|svagheter|negativt)$/i
 
 // Lines that begin with one of these are routed regardless of the active bucket.
 const STARTS_PRO = /^\s*(✅|✔️|✔|☑️|☑|➕|👍|\+)\s+/
@@ -28,13 +28,13 @@ function cleanItem(line: string): string {
 
 // Reduce a possible heading to bare letters so "**Pros:**", "### Cons", "✅ Pros" all match.
 function headingKey(line: string): string {
-  return line.replace(/[^a-zæøåA-ZÆØÅ]/g, '').toLowerCase()
+  return line.replace(/[^a-zæøåäöA-ZÆØÅÄÖ]/g, '').toLowerCase()
 }
 
 // A value that should not become a list item (empty / placeholder cells).
 function isBlank(s: string): boolean {
   const t = s.trim()
-  return t === '' || /^(-|–|—|n\/?a|none|ingen)$/i.test(t)
+  return t === '' || /^(-|–|—|n\/?a|none|ingen|inga)$/i.test(t)
 }
 
 // ── Table formats (HTML / markdown pipe / TSV): col 0 = pros, col 1 = cons ──
@@ -122,7 +122,7 @@ export function ProsConsBlockInput(props: ObjectInputProps) {
 
     const { pros, cons } = parseProsCons(input)
     if (pros.length === 0 && cons.length === 0) {
-      setError('Could not detect any pros or cons. Paste a two-column table, or "Pros:" / "Cons:" lists, straight from ChatGPT.')
+      setError('Could not detect any pros or cons. Paste a two-column table, or "Fördelar:" / "Nackdelar:" (or "Pros:" / "Cons:") lists, straight from ChatGPT.')
       return
     }
 
@@ -159,8 +159,9 @@ export function ProsConsBlockInput(props: ObjectInputProps) {
           <Box padding={4}>
             <Stack space={4}>
               <Text size={1} muted>
-                Paste straight from ChatGPT — a two-column table (Pros | Cons), labeled
-                &ldquo;Pros:&rdquo; / &ldquo;Cons:&rdquo; lists, or ✅ / ❌ lines all work.
+                Paste straight from ChatGPT — a two-column table (Fördelar | Nackdelar),
+                labeled &ldquo;Fördelar:&rdquo; / &ldquo;Nackdelar:&rdquo; (or Pros / Cons) lists,
+                or ✅ / ❌ lines all work. This replaces the current pros &amp; cons.
               </Text>
               <TextArea
                 rows={10}

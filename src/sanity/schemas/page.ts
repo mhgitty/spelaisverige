@@ -508,6 +508,7 @@ export const bodyField = defineField({
       type: 'object',
       name: 'casinoKortBlock',
       title: '🎰 Casino card',
+      components: { input: ProsConsBlockInput },
       fields: [
         {
           name: 'bookmaker',
